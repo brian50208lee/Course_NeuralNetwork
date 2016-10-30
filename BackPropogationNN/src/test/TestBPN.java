@@ -2,7 +2,10 @@ package test;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
+
 import network.bpn.*;
 import network.data_struct.Patten;
 import network.data_struct.PattenSet;
@@ -12,11 +15,10 @@ public class TestBPN {
 	
 	public static String inputFileName = "./hw1data.dat";
 	
-	public static void main(String args[]) throws Exception {
+	public static void main(String args[])  {
 		
 		/* read training data */
 		PattenSet pattenSet = readPatten(inputFileName);
-
 		
 		
 		/* initial network */
@@ -63,22 +65,34 @@ public class TestBPN {
 	
 	
 	
-	public static PattenSet readPatten(String inputFileName) throws Exception{
-		
+	public static PattenSet readPatten(String inputFileName) {
 		PattenSet tPattenSet = new PattenSet();
-		BufferedReader br = br = new BufferedReader(new FileReader(new File(inputFileName)));
+		BufferedReader br = null;
+		
+		try {
+			br = br = new BufferedReader(new FileReader(new File(inputFileName)));
+		}catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
 
 		String line="";
+		try {
 			while ((line = br.readLine())!= null) {
+				/* format */
 				String strPT[] = line.split("\\s+");
 				double dbPT[] = new double[strPT.length];
 				for (int i = 0; i < dbPT.length; i++) {
 					dbPT[i] = Double.parseDouble(strPT[i]);
 				}
+				/* normalize to 1 and 0 */
 				dbPT[dbPT.length-1] =dbPT[dbPT.length-1] <0 ? 0: 1;
 				tPattenSet.add(new Patten(dbPT));
-				//System.out.printf("%f,%f,%f\n",dbPT[0],dbPT[1],dbPT[2]);
 			}
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		return tPattenSet;
 	}
 }

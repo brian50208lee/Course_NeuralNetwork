@@ -10,8 +10,8 @@ import javax.swing.JComponent;
 import javax.swing.event.MouseInputListener;
 
 public class PainterCoordinate extends JComponent implements MouseInputListener,MouseWheelListener{
-	private ArrayList<double[]> dataPoint = null;
-	private ArrayList<double[]> linePoint = null;
+	private ArrayList<double[]> dataPoint;
+	private ArrayList<double[]> linePoint;
 	
 	/* coordinate data */
 	private double unitWidth = 500; 
@@ -32,16 +32,23 @@ public class PainterCoordinate extends JComponent implements MouseInputListener,
 	}
 	
 	public void drawPoint(ArrayList<double[]> dataPoint){
-		initCoordinate();
 		this.dataPoint = dataPoint;
+		initCoordinate();
 		repaint();
 	}
 
 	public void initCoordinate(){
-		unitWidth = 250; 
-		unitHeight = 250;
-		coordinate_originX = 100;
-		coordinate_originY = 400;
+		double maxXY = Double.MIN_VALUE;
+		double minXY = Double.MAX_VALUE;
+		for (double[] dPoint : dataPoint) {
+			maxXY = Math.max(Math.max(maxXY, dPoint[0]), dPoint[1]);
+			minXY = Math.min(Math.min(minXY, dPoint[0]), dPoint[1]);
+		}
+		
+		unitWidth = 0.8*getWidth()/(maxXY-minXY); 
+		unitHeight = 0.8*getHeight()/(maxXY-minXY);
+		coordinate_originX = 50 + (0 - minXY)*unitWidth;
+		coordinate_originY = getHeight()-50 - (0 - minXY)*unitHeight;
 	}
 	public void drawLine(ArrayList<double[]> point){
 		this.linePoint = point;
