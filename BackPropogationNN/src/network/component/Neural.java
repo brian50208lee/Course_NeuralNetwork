@@ -1,7 +1,7 @@
 package network.component;
 
 public class Neural {
-	public double baseWeight = 1;
+	public double baseWeight = -0.2;
 	public double baseInput = 1; 
 	public Link inLink[] = null;
 	public Link outLink[] = null;

@@ -24,7 +24,8 @@ public class TestBPN {
 		
 		
 		/* initial network */
-		BPN bpn = new BPN(2, 5, 1, 0.5);
+		//BPN bpn = new BPN(2, 5, 1, 0.5);
+		BPN bpn = new BPN(4, new int[]{2,8,6,1}, 0.5);
 		bpn.setSubject(new BPNSubject());
 		GUI gui = new GUI(bpn.getSubject());
 		
@@ -37,8 +38,7 @@ public class TestBPN {
 		
 		/* start training */
 		System.out.println("Trainning ...");
-		for (int i = 0; i < 10000; i++) {
-			
+		for (int i = 0; i < 500; i++) {
 			bpn.train(pattenSet);
 			/* slow motion */
 			//Thread.sleep(50);

@@ -9,13 +9,9 @@ import network.data_struct.PattenSet;
 import network.observer.BPNSubject;
 
 public class BPN {
-	private final static int INPUT_LAYER = 0;
-	private final static int HIDDEN_LAYER = 1;
-	private final static int OUTPUT_LAYER = 2;
 	private BPNSubject bpnSubject;
-	private int inNum;
-	private int hidNum;
-	private int outNum;
+	private int layerNum;
+	private int layerNeuralNum[];
 	private double learningRate = 0.5;
 	private Layer layer[];
 	
@@ -24,24 +20,30 @@ public class BPN {
 	public BPNSubject getSubject(){return this.bpnSubject ;}
 	
 	
-	public BPN(int inNum , int hidNum , int outNum , double learningRate){
-		this.inNum = inNum;
-		this.hidNum = hidNum;
-		this.outNum = outNum;
+	public BPN(int layerNum , int layerNeuralNum[] , double learningRate){
+		/* check */
+		if (layerNum != layerNeuralNum.length || layerNum <2) {
+			System.out.println("error ! cant creat BPN.");
+			return;
+		}
+		
+		this.layerNum = layerNum;
+		this.layerNeuralNum = layerNeuralNum;
 		this.learningRate = learningRate;
 		initNetwork();
 	}
 	
 	private void initNetwork() {
 		/* init layer */
-		layer = new Layer[3];
-		layer[INPUT_LAYER] = new Layer(inNum);
-		layer[HIDDEN_LAYER] = new Layer(hidNum);
-		layer[OUTPUT_LAYER] = new Layer(outNum);
+		layer = new Layer[layerNum];
+		for (int i = 0; i < layerNum; i++) {
+			layer[i] = new Layer(layerNeuralNum[i]);
+		}
 		
 		/* link neural */
-		Layer.linkNeural(layer[INPUT_LAYER], layer[HIDDEN_LAYER]);
-		Layer.linkNeural(layer[HIDDEN_LAYER], layer[OUTPUT_LAYER]);
+		for (int i = 0; i < layerNum-1; i++) {
+			Layer.linkNeural(layer[i], layer[i+1]);
+		}
 	}
 	
 	/**
@@ -56,7 +58,7 @@ public class BPN {
 		calErrorDelta(target);
 		reweight();
 		
-		//MSE(target);
+		MSE(target);
 	}
 
 	public void train(PattenSet pattenSet){
@@ -68,21 +70,24 @@ public class BPN {
 	
 	private double[] calOutput(double data[]){
 		/* init input layer */
-		for (int i = 0; i < layer[INPUT_LAYER].neural.length; i++) {
-			layer[INPUT_LAYER].neural[i].outputValue = data[i];
+		for (int i = 0; i < layer[0].neural.length; i++) {
+			layer[0].neural[i].outputValue = data[i];
 		}
 		
 		/* calculate output of hidden layer  */
-		for (Neural neural : layer[HIDDEN_LAYER].neural) {
-			double value = neural.baseWeight * neural.baseInput;
-			for (Link link : neural.inLink) {
-				value += link.weight * link.inNeural.outputValue;
+		for (int i = 1; i < layerNum-1; i++) {
+			for (Neural neural : layer[i].neural) {
+				double value = neural.baseWeight * neural.baseInput;
+				for (Link link : neural.inLink) {
+					value += link.weight * link.inNeural.outputValue;
+				}
+				neural.outputValue = sigmoid(value);
 			}
-			neural.outputValue = sigmoid(value);
 		}
+
 		
 		/* calculate output of output layer  */
-		for (Neural neural : layer[OUTPUT_LAYER].neural) {
+		for (Neural neural : layer[layerNum-1].neural) {
 			double value = neural.baseWeight * neural.baseInput;
 			for (Link link : neural.inLink) {
 				value += link.weight * link.inNeural.outputValue;
@@ -90,36 +95,38 @@ public class BPN {
 			neural.outputValue = sigmoid(value);
 		}
 		
-		double output[] = new double[layer[OUTPUT_LAYER].neural.length];
-		for (int i = 0; i < layer[OUTPUT_LAYER].neural.length; i++) {
-			output[i] = layer[OUTPUT_LAYER].neural[i].outputValue;
+		double output[] = new double[layer[layerNum-1].neural.length];
+		for (int i = 0; i < layer[layerNum-1].neural.length; i++) {
+			output[i] = layer[layerNum-1].neural[i].outputValue;
 		}
-			
 		
 		return output;
 	}
 	
 	private void calErrorDelta(double target){
 		/* calculate output Layer ErrorDelta */
-		for (Neural neural : layer[OUTPUT_LAYER].neural) {
+		for (Neural neural : layer[layerNum-1].neural) {
 			double outputValue = neural.outputValue;
 			neural.errorDelta = (target - outputValue)*outputValue*(1-outputValue);
 		}
 		
 		/* calculate hidden Layer ErrorDelta */
-		for (Neural neural : layer[HIDDEN_LAYER].neural) {
-			double outputValue = neural.outputValue;
-			double outputLayerDelta = 0.0;
-			for (Link link : neural.outLink) {
-				outputLayerDelta += link.weight * link.outNeural.errorDelta;
+		for (int i = layerNum-2; i >0; i--) {
+			for (Neural neural : layer[i].neural) {
+				double outputValue = neural.outputValue;
+				double outputLayerDelta = 0.0;
+				for (Link link : neural.outLink) {
+					outputLayerDelta += link.weight * link.outNeural.errorDelta;
+				}
+				neural.errorDelta = outputLayerDelta*outputValue*(1-outputValue);
 			}
-			neural.errorDelta = outputLayerDelta*outputValue*(1-outputValue);
 		}
+
 	}
 	
 	private void reweight(){
 		/* reweight output layer */
-		for(Neural neural : layer[OUTPUT_LAYER].neural){
+		for(Neural neural : layer[layerNum-1].neural){
 			for (Link link : neural.inLink) {
 				link.weight += learningRate*neural.errorDelta*link.inNeural.outputValue;
 			}
@@ -127,12 +134,15 @@ public class BPN {
 		}
 		
 		/* reweight hidden layer */
-		for(Neural neural : layer[HIDDEN_LAYER].neural){
-			for (Link link : neural.inLink) {
-				link.weight += learningRate*neural.errorDelta*link.inNeural.outputValue;
+		for (int i = layerNum-2; i >0; i--) {
+			for(Neural neural : layer[i].neural){
+				for (Link link : neural.inLink) {
+					link.weight += learningRate*neural.errorDelta*link.inNeural.outputValue;
+				}
+				neural.baseWeight += learningRate*neural.errorDelta*neural.baseInput;
 			}
-			neural.baseWeight += learningRate*neural.errorDelta*neural.baseInput;
 		}
+
 	}
 	
 	public double test(double data[]){
@@ -146,7 +156,7 @@ public class BPN {
 	
 	private double MSE(double targetOutput){
 		double vMSE = 0.0;
-		for (Neural neural : layer[OUTPUT_LAYER].neural) {
+		for (Neural neural : layer[layerNum-1].neural) {
 			vMSE += Math.pow(targetOutput-neural.outputValue, 2);
 		}
 		System.out.printf("MSE:\t%f\n" , vMSE);
@@ -155,9 +165,12 @@ public class BPN {
 	
 	private void notifyObserver(){
 		ArrayList<double[]> pointList = new ArrayList<double[]>();
-		for (Neural neural : layer[HIDDEN_LAYER].neural ) {
-			pointList.add(neural.getPrecisionPoint());
+		for (int i = 1; i <=1; i++) {
+			for (Neural neural : layer[i].neural ) {
+				pointList.add(neural.getPrecisionPoint());
+			}
 		}
+
 		bpnSubject.setPrecisionPoint(pointList);
 	}
 	
