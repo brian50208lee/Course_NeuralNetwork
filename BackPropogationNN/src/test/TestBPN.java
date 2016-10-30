@@ -15,7 +15,9 @@ public class TestBPN {
 	
 	public static String inputFileName = "./hw1data.dat";
 	
-	public static void main(String args[])  {
+	public static void main(String args[]) throws InterruptedException  {
+		/* args to filename*/
+		if (args.length > 0) {inputFileName = args[0];}
 		
 		/* read training data */
 		PattenSet pattenSet = readPatten(inputFileName);
@@ -56,7 +58,7 @@ public class TestBPN {
 		System.out.printf("{0.2,0.8}  ->\t%f\n",bpn.test(new double[]{0.2,0.8}));
 		System.out.printf("{0.5,0.8}  ->\t%f\n",bpn.test(new double[]{0.5,0.8}));
 		System.out.printf("{0.8,0.8}  ->\t%f\n",bpn.test(new double[]{0.8,0.8}));
-
+		
 	}
 	
 	
@@ -85,7 +87,7 @@ public class TestBPN {
 					dbPT[i] = Double.parseDouble(strPT[i]);
 				}
 				/* normalize to 1 and 0 */
-				dbPT[dbPT.length-1] =dbPT[dbPT.length-1] <0 ? 0: 1;
+				dbPT[dbPT.length-1] =dbPT[dbPT.length-1] > 0 ? 1: 0;
 				tPattenSet.add(new Patten(dbPT));
 			}
 		} catch (NumberFormatException e) {

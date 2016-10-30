@@ -52,10 +52,11 @@ public class BPN {
 	public void train(Patten patten){
 		double data[] = patten.getData();
 		double target = patten.getTarget();
-		double output = calOutput(data);
-		//System.out.println("MSE:" + MSE(target, output));
+		calOutput(data);
 		calErrorDelta(target);
 		reweight();
+		
+		//MSE(target);
 	}
 
 	public void train(PattenSet pattenSet){
@@ -65,7 +66,7 @@ public class BPN {
 		notifyObserver();
 	}
 	
-	private double calOutput(double data[]){
+	private double[] calOutput(double data[]){
 		/* init input layer */
 		for (int i = 0; i < layer[INPUT_LAYER].neural.length; i++) {
 			layer[INPUT_LAYER].neural[i].outputValue = data[i];
@@ -89,7 +90,13 @@ public class BPN {
 			neural.outputValue = sigmoid(value);
 		}
 		
-		return layer[OUTPUT_LAYER].neural[0].outputValue;
+		double output[] = new double[layer[OUTPUT_LAYER].neural.length];
+		for (int i = 0; i < layer[OUTPUT_LAYER].neural.length; i++) {
+			output[i] = layer[OUTPUT_LAYER].neural[i].outputValue;
+		}
+			
+		
+		return output;
 	}
 	
 	private void calErrorDelta(double target){
@@ -129,7 +136,7 @@ public class BPN {
 	}
 	
 	public double test(double data[]){
-		return calOutput(data);
+		return calOutput(data)[0];
 	}
 	
 	private double sigmoid(double x){
@@ -137,8 +144,13 @@ public class BPN {
 		return 1 / (1+Math.exp(-x));
 	}
 	
-	private double MSE(double targetOutput, double actualOutput){
-		return Math.pow(targetOutput-actualOutput, 2)/2;
+	private double MSE(double targetOutput){
+		double vMSE = 0.0;
+		for (Neural neural : layer[OUTPUT_LAYER].neural) {
+			vMSE += Math.pow(targetOutput-neural.outputValue, 2);
+		}
+		System.out.printf("MSE:\t%f\n" , vMSE);
+		return vMSE;
 	}
 	
 	private void notifyObserver(){
