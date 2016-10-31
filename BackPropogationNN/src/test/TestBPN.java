@@ -35,7 +35,7 @@ public class TestBPN {
 		
 		/* start training */
 		System.out.println("Trainning ...");
-		for (int i = 0; i < 1000; i++) {
+		for (int i = 0; i < 100000; i++) {
 			bpn.train(pattenSet);
 			/* slow motion */
 			//Thread.sleep(50);
@@ -88,14 +88,17 @@ public class TestBPN {
 		String line="";
 		try {
 			while ((line = br.readLine())!= null) {
-				/* format */
+				/* change to double tyoe */
 				String strPT[] = line.split("\\s+");
 				double dbPT[] = new double[strPT.length];
 				for (int i = 0; i < dbPT.length; i++) {
 					dbPT[i] = Double.parseDouble(strPT[i]);
 				}
-				/* normalize to 1 and 0 */
-				dbPT[dbPT.length-1] =dbPT[dbPT.length-1] > 0 ? 1: 0;
+				
+				/* normalize target value to 1 and 0 */
+				for (int i = 0; i < targetDimension; i++) {
+					dbPT[dbPT.length-1 - i] =dbPT[dbPT.length-1 - i] > 0 ? 1: 0;
+				}
 				tPattenSet.add(new Patten(dataDimension , dbPT));
 			}
 		} catch (NumberFormatException e) {
