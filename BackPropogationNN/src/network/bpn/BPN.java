@@ -173,10 +173,11 @@ public class BPN {
 		return y*(1-y);
 	}
 	
-	private double MSE(double targetOutput){
+	private double MSE(double targetOutput[]){
 		double vMSE = 0.0;
-		for (Neural neural : layer[layerNum-1].neural) {
-			vMSE += Math.pow(targetOutput-neural.outputValue, 2);
+		for (int i = 0  ; i < layer[layerNum-1].neural.length ; i++) {
+			Neural neural = layer[layerNum-1].neural[i];
+			vMSE += Math.pow(targetOutput[i]-neural.outputValue, 2);
 		}
 		System.out.printf("MSE:\t%f\n" , vMSE);
 		return vMSE;
