@@ -1,5 +1,6 @@
 package network.bpn;
 
+import java.awt.FontFormatException;
 import java.util.ArrayList;
 import network.component.Layer;
 import network.component.Link;
@@ -53,12 +54,12 @@ public class BPN {
 	 */
 	public void train(Patten patten){
 		double data[] = patten.getData();
-		double target = patten.getTarget();
+		double target[] = patten.getTarget();
 		calOutput(data);
 		calErrorDelta(target);
 		reweight();
 		
-		MSE(target);
+		//MSE(target);
 	}
 
 	public void train(PattenSet pattenSet){
@@ -103,11 +104,12 @@ public class BPN {
 		return output;
 	}
 	
-	private void calErrorDelta(double target){
+	private void calErrorDelta(double target[]){
 		/* calculate output Layer ErrorDelta */
-		for (Neural neural : layer[layerNum-1].neural) {
+		for (int i = 0; i < layer[layerNum-1].neural.length; i++) {
+			Neural neural = layer[layerNum-1].neural[i];
 			double outputValue = neural.outputValue;
-			neural.errorDelta = (target - outputValue)*outputValue*(1-outputValue);
+			neural.errorDelta = (target[i] - outputValue)*outputValue*(1-outputValue);
 		}
 		
 		/* calculate hidden Layer ErrorDelta */
@@ -142,11 +144,26 @@ public class BPN {
 				neural.baseWeight += learningRate*neural.errorDelta*neural.baseInput;
 			}
 		}
-
 	}
 	
-	public double test(double data[]){
-		return calOutput(data)[0];
+	public double[] test(double data[]){
+		double[] output = calOutput(data);
+		
+		StringBuilder resultString = new StringBuilder("Data [ ");
+		for (int i = 0; i < data.length; i++) {
+			resultString.append(String.format("%.2f,", data[i])) ;
+		}
+		resultString.replace(resultString.length()-1,resultString.length(), " ]");
+		
+		
+		resultString.append("\t->\t");
+		for (int i = 0; i < output.length; i++) {
+			resultString.append(String.format("%.10f,", output[i]));
+		}
+		resultString.replace(resultString.length()-1,resultString.length(), "");
+		
+		System.out.println(resultString);
+		return output;
 	}
 	
 	private double sigmoid(double x){
