@@ -14,6 +14,10 @@ public class PattenSet {
 		return pattenList;
 	}
 	
+	public int size(){
+		return pattenList.size();
+	}
+	
 	public void add(Patten patten){
 		pattenList.add(patten);
 	}

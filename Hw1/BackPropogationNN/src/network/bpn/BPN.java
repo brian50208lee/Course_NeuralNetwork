@@ -1,6 +1,5 @@
 package network.bpn;
 
-import java.awt.FontFormatException;
 import java.util.ArrayList;
 import network.component.Layer;
 import network.component.Link;
@@ -15,8 +14,10 @@ public class BPN {
 	private int layerNeuralNum[];
 	private double learningRate = 0.5;
 	private Layer layer[];
+	private ArrayList<Double> errorRecord;
 	
 	
+	public ArrayList<Double> getErrorRecord(){return errorRecord;}
 	public void setSubject(BPNSubject bpnSubject){this.bpnSubject = bpnSubject;}
 	public BPNSubject getSubject(){return this.bpnSubject ;}
 	
@@ -45,6 +46,9 @@ public class BPN {
 		for (int i = 0; i < layerNum-1; i++) {
 			Layer.linkNeural(layer[i], layer[i+1]);
 		}
+		
+		/* error record */
+		errorRecord = new ArrayList<Double>();
 	}
 	
 	/**
@@ -59,13 +63,18 @@ public class BPN {
 		calErrorDelta(target);
 		reweight();
 		
-		//MSE(target);
 	}
 
 	public void train(PattenSet pattenSet){
+		/* error record */
+		//calOutput(pattenSet.getPattenList().get(500).getData());
+		//errorRecord.add(MSE(pattenSet.getPattenList().get(500).getTarget()));
+		double sumMSE = 0;
 		for (Patten patten : pattenSet.getPattenList()){
 			train(patten);
+			sumMSE += MSE(patten.getTarget());
 		}
+		errorRecord.add(sumMSE/pattenSet.size());
 		notifyObserver();
 	}
 	
@@ -179,7 +188,7 @@ public class BPN {
 			Neural neural = layer[layerNum-1].neural[i];
 			vMSE += Math.pow(targetOutput[i]-neural.outputValue, 2);
 		}
-		System.out.printf("MSE:\t%f\n" , vMSE);
+		//System.out.printf("MSE:\t%f\n" , vMSE);
 		return vMSE;
 	}
 	

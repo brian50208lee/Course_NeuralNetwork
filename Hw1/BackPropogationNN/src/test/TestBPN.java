@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import network.bpn.*;
 import network.data_struct.Patten;
@@ -24,7 +25,7 @@ public class TestBPN {
 		PattenSet pattenSet = readPatten(inputFileName);
 		
 		/* initial network */
-		BPN bpn = new BPN(4, new int[]{dataDimension,4,3,targetDimension}, 0.5);
+		BPN bpn = new BPN(4, new int[]{dataDimension,8,6,targetDimension}, 0.3);
 		bpn.setSubject(new BPNSubject());
 		
 		/* View for 2D data */
@@ -35,13 +36,18 @@ public class TestBPN {
 		
 		/* start training */
 		System.out.println("Trainning ...");
-		for (int i = 0; i < 1000; i++) {
+		for (int i = 0; i < 500; i++) {
 			bpn.train(pattenSet);
 			/* slow motion */
 			//Thread.sleep(50);
 		}
 		System.out.println("Done traning");
 		
+		/* get error */
+		ArrayList<Double> error = bpn.getErrorRecord();
+		for (int i =0 ; i <error.size() ; i++) {
+			System.out.println( error.get(i));
+		}
 		/* test */
 		System.out.println("Test ...");
 		/*

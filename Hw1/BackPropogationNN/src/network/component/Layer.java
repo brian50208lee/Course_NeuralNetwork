@@ -17,7 +17,7 @@ public class Layer {
 			for (int j = 0; j<neuralNum2;j++) {
 				Neural neural1 = layer1.neural[i];
 				Neural neural2 = layer2.neural[j];
-				Link link = new Link(neural1 , neural2 , new Random().nextDouble()*2);
+				Link link = new Link(neural1 , neural2 , new Random().nextDouble() );
 				if (neural1.outLink == null)neural1.outLink = new Link[neuralNum2];
 				if (neural2.inLink == null)neural2.inLink = new Link[neuralNum1];
 				neural1.outLink[j] = link;
