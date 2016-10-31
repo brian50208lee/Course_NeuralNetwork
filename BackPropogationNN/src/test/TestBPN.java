@@ -23,17 +23,15 @@ public class TestBPN {
 		/* read training data */
 		PattenSet pattenSet = readPatten(inputFileName);
 		
-		
 		/* initial network */
 		BPN bpn = new BPN(4, new int[]{dataDimension,8,6,targetDimension}, 0.5);
 		bpn.setSubject(new BPNSubject());
 		
+		/* View for 2D data */
 		if (dataDimension == 2 ) {
 			GUI gui = new GUI(bpn.getSubject());
 			gui.drawPatten(pattenSet);
 		}
-		
-		
 		
 		/* start training */
 		System.out.println("Trainning ...");
@@ -44,11 +42,8 @@ public class TestBPN {
 		}
 		System.out.println("Done traning");
 		
-		
-		
 		/* test */
 		System.out.println("Test ...");
-		
 		/*
 		bpn.test(new double[]{0,0,0});
 		bpn.test(new double[]{0,0,1});

@@ -109,7 +109,7 @@ public class BPN {
 		for (int i = 0; i < layer[layerNum-1].neural.length; i++) {
 			Neural neural = layer[layerNum-1].neural[i];
 			double outputValue = neural.outputValue;
-			neural.errorDelta = (target[i] - outputValue)*outputValue*(1-outputValue);
+			neural.errorDelta = (target[i] - outputValue)*desigmoid(outputValue);
 		}
 		
 		/* calculate hidden Layer ErrorDelta */
@@ -120,7 +120,7 @@ public class BPN {
 				for (Link link : neural.outLink) {
 					outputLayerDelta += link.weight * link.outNeural.errorDelta;
 				}
-				neural.errorDelta = outputLayerDelta*outputValue*(1-outputValue);
+				neural.errorDelta = outputLayerDelta*desigmoid(outputValue);
 			}
 		}
 
@@ -167,8 +167,10 @@ public class BPN {
 	}
 	
 	private double sigmoid(double x){
-		//return Math.tanh(x);
 		return 1 / (1+Math.exp(-x));
+	}	
+	private double desigmoid(double y){
+		return y*(1-y);
 	}
 	
 	private double MSE(double targetOutput){
