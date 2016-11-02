@@ -14,7 +14,7 @@ import network.observer.BPNSubject;
 import network.view.GUI;
 public class TestBPN {
 	
-	public static String inputFileName = "./hw1data.dat";
+	public static String inputFileName = "./hw1_1.dat";
 	public static int dataDimension = 2;
 	public static int targetDimension = 1;
 	public static void main(String args[]) throws InterruptedException  {
@@ -25,7 +25,7 @@ public class TestBPN {
 		PattenSet pattenSet = readPatten(inputFileName);
 		
 		/* initial network */
-		BPN bpn = new BPN(4, new int[]{dataDimension,8,6,targetDimension}, 0.3);
+		BPN bpn = new BPN(4, new int[]{dataDimension,4,3,targetDimension}, 0.5);
 		bpn.setSubject(new BPNSubject());
 		
 		/* View for 2D data */
@@ -36,18 +36,15 @@ public class TestBPN {
 		
 		/* start training */
 		System.out.println("Trainning ...");
-		for (int i = 0; i < 500; i++) {
+		for (int i = 0; i < 2000; i++) {
 			bpn.train(pattenSet);
 			/* slow motion */
-			//Thread.sleep(50);
+			//Thread.sleep(1000);
 		}
 		System.out.println("Done traning");
+		bpn.printErrorRecord();
+		bpn.printWeight();
 		
-		/* get error */
-		ArrayList<Double> error = bpn.getErrorRecord();
-		for (int i =0 ; i <error.size() ; i++) {
-			System.out.println( error.get(i));
-		}
 		/* test */
 		System.out.println("Test ...");
 		/*
@@ -61,7 +58,7 @@ public class TestBPN {
 		bpn.test(new double[]{1,1,1});
 		*/
 		
-		
+		/*
 		bpn.test(new double[]{0.2,0.2});
 		bpn.test(new double[]{0.5,0.2});
 		bpn.test(new double[]{0.8,0.2});
@@ -71,6 +68,17 @@ public class TestBPN {
 		bpn.test(new double[]{0.2,0.8});
 		bpn.test(new double[]{0.5,0.8});
 		bpn.test(new double[]{0.8,0.8});
+		*/
+		
+		bpn.printOutputPath(new double[]{1,1});
+		bpn.printOutputPath(new double[]{3,1});
+		bpn.printOutputPath(new double[]{5,1});
+		bpn.printOutputPath(new double[]{1,3});
+		bpn.printOutputPath(new double[]{3,3});
+		bpn.printOutputPath(new double[]{5,3});
+		bpn.printOutputPath(new double[]{1,5});
+		bpn.printOutputPath(new double[]{3,5});
+		bpn.printOutputPath(new double[]{5,5});
 		
 		
 	}
