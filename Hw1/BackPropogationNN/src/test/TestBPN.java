@@ -27,7 +27,7 @@ public class TestBPN {
 		PattenSet pattenSet = readPatten(inputFileName);
 		
 		/* initial network */
-		BPN bpn = new BPN(new int[]{dataDimension,4,3,targetDimension}, 0.5);
+		BPN bpn = new BPN(new int[]{dataDimension,8,6,targetDimension}, 0.5);
 		bpn.setSubject(new BPNSubject());
 		
 		/* View for 2D data */
@@ -38,7 +38,7 @@ public class TestBPN {
 		
 		/* start training */
 		System.out.println("Trainning ...");
-		for (int i = 0; i < 2000; i++) {
+		for (int i = 0; i < 5000; i++) {
 			bpn.train(pattenSet);
 			/* slow motion */
 			//Thread.sleep(1000);
@@ -60,7 +60,7 @@ public class TestBPN {
 		bpn.test(new double[]{1,1,1});
 		*/
 		
-		/*
+		
 		bpn.test(new double[]{0.2,0.2});
 		bpn.test(new double[]{0.5,0.2});
 		bpn.test(new double[]{0.8,0.2});
@@ -70,8 +70,8 @@ public class TestBPN {
 		bpn.test(new double[]{0.2,0.8});
 		bpn.test(new double[]{0.5,0.8});
 		bpn.test(new double[]{0.8,0.8});
-		*/
 		
+		/*
 		bpn.printOutputPath(new double[]{1,1});
 		bpn.printOutputPath(new double[]{3,1});
 		bpn.printOutputPath(new double[]{5,1});
@@ -81,7 +81,7 @@ public class TestBPN {
 		bpn.printOutputPath(new double[]{1,5});
 		bpn.printOutputPath(new double[]{3,5});
 		bpn.printOutputPath(new double[]{5,5});
-		
+		*/
 		
 	}
 	

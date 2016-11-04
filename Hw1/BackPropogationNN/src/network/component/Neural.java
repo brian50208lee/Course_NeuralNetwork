@@ -8,10 +8,32 @@ public class Neural {
 	public double outputValue = 0; 
 	public double errorDelta = 0; 
 	
+	/** newWeight[] = [w1,w2,...,wn,baseW] */
+	public void setWeight(double newWeight[]){
+		for (int i = 0; i < inLink.length; i++){
+			inLink[i].weight = newWeight[i];
+		}
+		baseWeight = newWeight[newWeight.length-1];
+	}
+	
+	/** weight[] = [w1,w2,...,wn,baseW] */
+	public double[] getWeight(){
+		double weight[] = new double[inLink.length + 1];
+		for (int i = 0; i < inLink.length; i++) {
+			weight[i] = inLink[i].weight;
+		}
+		weight[weight.length - 1] = baseWeight;
+		return weight;
+	}
+	
 	public double[] getPrecisionPoint(){
-		/* calculate prcision point and return */
-		double denominator = 0;
+		/* 
+		 * calculate prcision point and return 
+		 * point = (a1,a2,...,an)
+		 * ak = -(wk * wn) / (w1^2 + w2^2 + ... + wn-1^2) 
+		 */
 		double point[] = new double[inLink.length];
+		double denominator = 0;
 		for (int i = 0; i < inLink.length; i++) {
 			point[i] = (-1)*inLink[i].weight*baseWeight;
 			denominator += inLink[i].weight * inLink[i].weight;

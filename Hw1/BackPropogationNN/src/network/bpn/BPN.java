@@ -1,9 +1,6 @@
 package network.bpn;
 
 import java.util.ArrayList;
-
-import com.sun.media.jfxmedia.events.NewFrameEvent;
-
 import network.component.Layer;
 import network.component.Link;
 import network.component.Neural;
@@ -31,7 +28,7 @@ public class BPN {
 	public BPNSubject getSubject(){return this.bpnSubject ;}
 	public void setSubject(BPNSubject bpnSubject){this.bpnSubject = bpnSubject;}
 	
-	/* constructor */
+	/** constructor */
 	public BPN(int layerNeuralNum[] , double learningRate){
 		/* set network information */
 		this.layerNum = layerNeuralNum.length;
@@ -72,7 +69,7 @@ public class BPN {
 		
 		/* setp by step */
 		calOutput(data);
-		calErrorDelta(target);
+		calDelta(target);
 		reweight();
 	}
 	
@@ -126,7 +123,7 @@ public class BPN {
 		return output;
 	}
 	
-	private void calErrorDelta(double target[]){
+	private void calDelta(double target[]){
 		/* calculate ErrorDelta of output Layer */
 		for (int i = 0; i < layer[layerNum-1].neural.length; i++) {
 			Neural neural = layer[layerNum-1].neural[i];
