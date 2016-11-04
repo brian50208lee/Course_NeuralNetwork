@@ -1,6 +1,8 @@
 package network.bpn;
 
 import java.util.ArrayList;
+import java.util.Random;
+
 import network.component.Layer;
 import network.component.Link;
 import network.component.Neural;
@@ -55,6 +57,16 @@ public class BPN {
 		/* link neural */
 		for (int i = 0; i < layerNum-1; i++) {
 			Layer.linkNeural(layer[i], layer[i+1]);
+		}
+		
+		/* set weight */
+		for (int layerIdx = 1 ; layerIdx < layerNum ; layerIdx++) {
+			for (Neural neural : layer[layerIdx].neural) {
+				for (Link link : neural.inLink) {
+					link.weight = new Random().nextGaussian();
+				}
+				neural.baseWeight = new Random().nextGaussian();
+			}
 		}
 		
 		/* initial error record */
@@ -263,10 +275,10 @@ public class BPN {
 	public void printWeight(){
 		for (int i=1 ;i < layer.length;i++) {
 			Layer lay = layer[i];
-			System.out.println("layer:" + i);
+			System.out.println("Layer: " + i);
 			for (int j =0 ; j < lay.neural.length ;j++) {
 				Neural neural = lay.neural[j];
-				System.out.println("Neural:"+j);
+				System.out.print("Neural: "+j+"\tWeight: ");
 				System.out.printf("(%.5f",neural.inLink[0].weight);
 				for (int k = 1; k < neural.inLink.length; k++) {
 					System.out.printf(",%.5f",neural.inLink[k].weight);

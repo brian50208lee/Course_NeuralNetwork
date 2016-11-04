@@ -1,7 +1,9 @@
 package network.component;
 
+import java.util.Random;
+
 public class Neural {
-	public double baseWeight = -1;
+	public double baseWeight = new Random().nextDouble();
 	public double baseInput = 1; 
 	public Link inLink[] = null;
 	public Link outLink[] = null;
@@ -14,16 +16,6 @@ public class Neural {
 			inLink[i].weight = newWeight[i];
 		}
 		baseWeight = newWeight[newWeight.length-1];
-	}
-	
-	/** weight[] = [w1,w2,...,wn,baseW] */
-	public double[] getWeight(){
-		double weight[] = new double[inLink.length + 1];
-		for (int i = 0; i < inLink.length; i++) {
-			weight[i] = inLink[i].weight;
-		}
-		weight[weight.length - 1] = baseWeight;
-		return weight;
 	}
 	
 	public double[] getPrecisionPoint(){

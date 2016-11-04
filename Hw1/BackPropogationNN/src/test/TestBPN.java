@@ -27,7 +27,7 @@ public class TestBPN {
 		PattenSet pattenSet = readPatten(inputFileName);
 		
 		/* initial network */
-		BPN bpn = new BPN(new int[]{dataDimension,8,6,targetDimension}, 0.5);
+		BPN bpn = new BPN(new int[]{dataDimension,4,3,targetDimension}, 0.5);
 		bpn.setSubject(new BPNSubject());
 		
 		/* View for 2D data */
@@ -38,7 +38,7 @@ public class TestBPN {
 		
 		/* start training */
 		System.out.println("Trainning ...");
-		for (int i = 0; i < 5000; i++) {
+		for (int i = 0; i < 3000; i++) {
 			bpn.train(pattenSet);
 			/* slow motion */
 			//Thread.sleep(1000);
