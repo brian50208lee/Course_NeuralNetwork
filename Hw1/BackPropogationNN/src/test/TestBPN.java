@@ -14,18 +14,20 @@ import network.observer.BPNSubject;
 import network.view.GUI;
 public class TestBPN {
 	
-	public static String inputFileName = "./hw1_1.dat";
-	public static int dataDimension = 2;
-	public static int targetDimension = 1;
+	private static String inputFileName = "./hw1data.dat";
+	private static int dataDimension = 2;
+	private static int targetDimension = 1;
 	public static void main(String args[]) throws InterruptedException  {
 		/* args to filename*/
 		if (args.length > 0) {inputFileName = args[0];}
+		if (args.length > 1) {dataDimension = Integer.parseInt(args[1]);}
+		if (args.length > 2) {targetDimension = Integer.parseInt(args[2]);}
 		
 		/* read training data */
 		PattenSet pattenSet = readPatten(inputFileName);
 		
 		/* initial network */
-		BPN bpn = new BPN(4, new int[]{dataDimension,4,3,targetDimension}, 0.5);
+		BPN bpn = new BPN(new int[]{dataDimension,4,3,targetDimension}, 0.5);
 		bpn.setSubject(new BPNSubject());
 		
 		/* View for 2D data */

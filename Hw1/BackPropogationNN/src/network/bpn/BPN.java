@@ -32,17 +32,17 @@ public class BPN {
 	public void setSubject(BPNSubject bpnSubject){this.bpnSubject = bpnSubject;}
 	
 	/* constructor */
-	public BPN(int layerNum , int layerNeuralNum[] , double learningRate){
-		/* check legal */
-		if (layerNum != layerNeuralNum.length || layerNum <2) {
-			System.out.println("error! cant creat network.");
-			return;
-		}
-		
+	public BPN(int layerNeuralNum[] , double learningRate){
 		/* set network information */
-		this.layerNum = layerNum;
+		this.layerNum = layerNeuralNum.length;
 		this.layerNeuralNum = layerNeuralNum;
 		this.learningRate = learningRate;
+		
+		/* check legal */
+		if (layerNum <2) {
+			System.out.println("layer number must greater than 1");
+			return;
+		}
 		
 		/* initail newwork */
 		initNetwork();
@@ -285,7 +285,7 @@ public class BPN {
 		double[] output = calOutput(data);
 		
 		/* print data */
-		System.out.printf("Data [ %.2f",data[0]);
+		System.out.printf("Test Data [ %.2f",data[0]);
 		for (int i = 1; i < data.length; i++) {
 			System.out.printf(",%.2f", data[i]) ;
 		}
@@ -311,7 +311,7 @@ public class BPN {
 	
 	public void printErrorRecord(){
 		for ( Double error : errorRecord ) {
-			System.out.println( error.doubleValue() );
+			System.out.println("error = " + error.doubleValue() );
 		}
 		System.out.println();
 	}
