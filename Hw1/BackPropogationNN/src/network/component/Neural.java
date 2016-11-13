@@ -27,7 +27,8 @@ public class Neural {
 		double point[] = new double[inLink.length];
 		double denominator = 0;
 		for (int i = 0; i < inLink.length; i++) {
-			point[i] = (-1)*inLink[i].weight*baseWeight;
+			double wn = baseWeight == 0.0 ? Double.MIN_NORMAL*10000 : baseWeight;
+			point[i] = (-1)*inLink[i].weight*wn;
 			denominator += inLink[i].weight * inLink[i].weight;
 		}
 

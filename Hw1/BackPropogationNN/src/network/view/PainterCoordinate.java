@@ -94,11 +94,12 @@ public class PainterCoordinate extends JComponent implements MouseInputListener,
 				g.setColor(Color.WHITE);
 				g.fillOval((int)(pX-2.5) , (int)(pY-2.5) , 5, 5);
 				double factor = Math.max(10000/db[1], 10000/db[0]);
+				if (db[0] == 0 || db[1] == 0 )factor = Double.MAX_VALUE;
+				
 				double sX = pX  +  (-1)*db[1]*factor ;
 				double sY = pY  +  (-1)*db[0]*factor;
 				double eX = pX  -  (-1)*db[1]*factor;
 				double eY = pY  -  (-1)*db[0]*factor;
-
 				g.setColor(Color.RED);
 				g.drawLine((int)sX, (int)sY, (int)eX,(int)eY);
 			}

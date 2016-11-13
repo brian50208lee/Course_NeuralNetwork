@@ -1,7 +1,13 @@
 package network.bpn;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
 import network.component.Layer;
 import network.component.Link;
@@ -9,6 +15,7 @@ import network.component.Neural;
 import network.data_struct.Patten;
 import network.data_struct.PattenSet;
 import network.observer.BPNSubject;
+import sun.text.resources.ca.CollationData_ca;
 
 public class BPN {
 	/* observable */
@@ -29,6 +36,13 @@ public class BPN {
 	public ArrayList<Double> getErrorRecord(){return errorRecord;}
 	public BPNSubject getSubject(){return this.bpnSubject ;}
 	public void setSubject(BPNSubject bpnSubject){this.bpnSubject = bpnSubject;}
+	public void setWeight(int layerIdx, int neuralIdx, double newWeight[]){
+		if (layerIdx > layerNum - 1 || neuralIdx > layer[layerIdx].neural.length - 1) {
+			return;
+		}
+		Neural neural = layer[layerIdx].neural[neuralIdx];
+		neural.setWeight(newWeight);
+	}
 	
 	/** constructor */
 	public BPN(int layerNeuralNum[] , double learningRate){
@@ -65,7 +79,7 @@ public class BPN {
 				for (Link link : neural.inLink) {
 					link.weight = new Random().nextGaussian();
 				}
-				neural.baseWeight = new Random().nextGaussian();
+				neural.baseWeight = new Random().nextGaussian()*5;
 			}
 		}
 		
@@ -88,6 +102,7 @@ public class BPN {
 	/** training network by patten set */
 	public void train(PattenSet pattenSet){
 		/* train patten in pattenSet and calculate average error */
+		//Collections.shuffle(pattenSet.getPattenList());
 		double avgError = 0.0;
 		for (Patten patten : pattenSet.getPattenList()){
 			train(patten);
@@ -169,6 +184,7 @@ public class BPN {
 		/* reweight hidden layer */
 		for (int i = layerNum-2; i >0; i--) {
 			for(Neural neural : layer[i].neural){
+				Link w[] = neural.inLink;
 				for (Link link : neural.inLink) {
 					link.weight += learningRate*neural.errorDelta*link.inNeural.outputValue;
 				}
@@ -265,9 +281,85 @@ public class BPN {
 	
 	
 	
-	
-	
-	
+	public void printHiddenTree(PattenSet pattenSet){
+		System.out.println("Hidden Tree");
+		ArrayList<HashMap<String,Set<String>>> hiddenTreeList = new ArrayList<>();
+		for (int i = 0; i < layerNum-2; i++) {
+			hiddenTreeList.add(new HashMap<String,Set<String>>());
+		}
+		
+		
+		for (Patten patten : pattenSet.getPattenList()) {
+			/* init input layer by data */
+			for (int i = 0; i < layer[0].neural.length; i++) {
+				layer[0].neural[i].outputValue = patten.getData()[i];
+			}
+			
+			/* calculate output of hidden layer  */
+			for (int i = 1; i < layerNum-1; i++) {
+				for (Neural neural : layer[i].neural) {
+					double value = neural.baseWeight * neural.baseInput;
+					for (Link link : neural.inLink) {
+						value += link.weight * link.inNeural.outputValue;
+					}
+					neural.outputValue = Double.parseDouble(String.format("%1.0f",sigmoid(value)));
+				}
+			}
+
+			/* calculate output of output layer  */
+			for (Neural neural : layer[layerNum-1].neural) {
+				double value = neural.baseWeight * neural.baseInput;
+				for (Link link : neural.inLink) {
+					value += link.weight * link.inNeural.outputValue;
+				}
+				neural.outputValue = Double.parseDouble(String.format("%1.0f",sigmoid(value)));
+			}
+			
+			/* format output */
+			String output[] = new String[layerNum - 1]; 
+			for (int i = 1; i < layer.length; i++) {
+				String tempOutput = "";
+				for (int j = 0; j < layer[i].neural.length; j++) {
+					tempOutput += String.format("%1.0f",layer[i].neural[j].outputValue);
+				}
+				output[i-1] = tempOutput;
+				if (i==1) {
+					output[i-1] += "-";
+					for (double target : patten.getTarget()) {
+						output[i-1] += String.format("%1.0f",target);
+					}
+				} 
+			}
+			
+			/* add to set */
+			for (int i = 0; i < output.length - 1; i++) {
+				String parent = output[i+1];
+				String child = output[i];
+				
+				if (hiddenTreeList.get(i).get(parent) == null) {
+					hiddenTreeList.get(i).put(parent, new HashSet<String>());
+				}
+				hiddenTreeList.get(i).get(parent).add(child);
+			}
+		}
+		
+		/* print the tree */
+		for (int i = 0 ; i < layerNum - 2 ; i++) {
+			HashMap<String,Set<String>> map = hiddenTreeList.get(i);
+			System.out.printf("Layer: %d\n" ,i+1);
+			for (String parent :map.keySet()) {
+				System.out.printf("\tParent: %s\t",parent);
+				Set<String> childSet = map.get(parent);
+				System.out.print("Child: ");
+				for (String child : childSet) {
+					System.out.printf("%s ",child);
+				}
+				System.out.println();
+			}
+			System.out.println();
+		}
+		
+	}
 	
 	
 	
