@@ -14,9 +14,10 @@ import network.observer.BPNSubject;
 import network.view.GUI;
 public class TestBPN {
 	
-	private static String inputFileName = "./hw1data.dat";
+	private static String inputFileName = "hw1data.dat";
 	private static int[] networkDeclare = new int[]{2,8,6,1};
 	private static int interation = 1000;
+	private static double learningRate = 0.5;
 	
 	public static void main(String args[]) throws InterruptedException  {
 		/* args to filename*/
@@ -29,12 +30,13 @@ public class TestBPN {
 			}
 		}
 		if (args.length > 2) {interation = Integer.parseInt(args[2]);}
+		if (args.length > 3) {learningRate = Double.parseDouble(args[3]);}
 		
 		/* read training data */
 		PattenSet pattenSet = readPatten(inputFileName);
 		
 		/* initial network */
-		BPN bpn = new BPN(networkDeclare, 0.5);
+		BPN bpn = new BPN(networkDeclare, learningRate);
 		bpn.setSubject(new BPNSubject());
 		
 		/* set weight */
@@ -72,19 +74,7 @@ public class TestBPN {
 		bpn.printHiddenTree(pattenSet);
 		
 		/* test */
-		System.out.println("Test ...");
-		/*
-		bpn.test(new double[]{0,0,0});
-		bpn.test(new double[]{0,0,1});
-		bpn.test(new double[]{0,1,0});
-		bpn.test(new double[]{0,1,1});
-		bpn.test(new double[]{1,0,0});
-		bpn.test(new double[]{1,0,1});
-		bpn.test(new double[]{1,1,0});
-		bpn.test(new double[]{1,1,1});
-		*/
-		
-		
+		//System.out.println("Test ...");
 		/*
 		bpn.printOutputPath(new double[]{0.2,0.2});
 		bpn.printOutputPath(new double[]{0.5,0.2});
@@ -96,17 +86,7 @@ public class TestBPN {
 		bpn.printOutputPath(new double[]{0.5,0.8});
 		bpn.printOutputPath(new double[]{0.8,0.8});
 		*/
-		/*
-		bpn.printOutputPath(new double[]{1,1});
-		bpn.printOutputPath(new double[]{3,1});
-		bpn.printOutputPath(new double[]{5,1});
-		bpn.printOutputPath(new double[]{1,3});
-		bpn.printOutputPath(new double[]{3,3});
-		bpn.printOutputPath(new double[]{5,3});
-		bpn.printOutputPath(new double[]{1,5});
-		bpn.printOutputPath(new double[]{3,5});
-		bpn.printOutputPath(new double[]{5,5});
-		*/
+		
 		System.out.println("done");
 	}
 	

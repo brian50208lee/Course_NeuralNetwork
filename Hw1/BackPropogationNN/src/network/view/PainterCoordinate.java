@@ -71,8 +71,8 @@ public class PainterCoordinate extends JComponent implements MouseInputListener,
 		
 		/* draw coordinate */
 		g.setColor(Color.gray);
-		g.drawLine((int)coordinate_originX-1000, (int)coordinate_originY, (int)coordinate_originX+1000, (int)coordinate_originY);
-		g.drawLine((int)coordinate_originX, (int)coordinate_originY-1000, (int)coordinate_originX, (int)coordinate_originY+1000);
+		g.drawLine((int)coordinate_originX-100000, (int)coordinate_originY, (int)coordinate_originX+100000, (int)coordinate_originY);
+		g.drawLine((int)coordinate_originX, (int)coordinate_originY-100000, (int)coordinate_originX, (int)coordinate_originY+100000);
 
 		/* draw data */
 		if (dataPoint != null) {
@@ -108,8 +108,15 @@ public class PainterCoordinate extends JComponent implements MouseInputListener,
 
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent e) {
-		unitWidth += (-10)*e.getWheelRotation();
-		unitHeight += (-10)*e.getWheelRotation();
+		double factor =1.2;
+		if (e.getWheelRotation() > 0) {
+			unitWidth *= factor;
+			unitHeight *= factor;
+		} else {
+			unitWidth /= factor;
+			unitHeight /= factor;
+
+		}
 		repaint();
 	}
 

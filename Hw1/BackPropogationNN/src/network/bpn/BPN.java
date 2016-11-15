@@ -79,7 +79,7 @@ public class BPN {
 				for (Link link : neural.inLink) {
 					link.weight = new Random().nextGaussian();
 				}
-				neural.baseWeight = new Random().nextGaussian()*5;
+				neural.baseWeight = new Random().nextGaussian();
 			}
 		}
 		
@@ -102,7 +102,7 @@ public class BPN {
 	/** training network by patten set */
 	public void train(PattenSet pattenSet){
 		/* train patten in pattenSet and calculate average error */
-		//Collections.shuffle(pattenSet.getPattenList());
+		Collections.shuffle(pattenSet.getPattenList());
 		double avgError = 0.0;
 		for (Patten patten : pattenSet.getPattenList()){
 			train(patten);
