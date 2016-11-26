@@ -1,0 +1,9 @@
+以下是關於作業二的一些注意事項：
+0. 請注意是SOM Perceptron 不是其它書中的SOM，所以要依老師的paper做
+1. 內容pdf中的梯度公式用到(1-y1(p,m)^2)這樣子的地方
+　是因為他的activation function是y = tanh(x) = (e^x - e^-x)/(e^x + e^-x)
+　如果你的activation function是logistic sigmoid function
+　請改成(y1(p,m)-y1(p,m)^2)
+2. 不用依照HW2的參數，可自調att , rep的 Learning Rate and L, n 等等
+3. 更新太慢，可調Learning Rate 或Weight初始範圍給大點
+4. 只要顯示出longest dist 越來越小，shortest distance越來越大就行了
