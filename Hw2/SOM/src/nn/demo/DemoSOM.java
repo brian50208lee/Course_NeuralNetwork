@@ -8,10 +8,10 @@ import nn.view.GUI;
 public class DemoSOM {
 	
 	private static String inputFileName = "hw2.dat";
-	private static int[] networkDeclare = new int[]{2,5,5,5,5,5};
+	private static int[] networkDeclare = new int[]{2,1};
 	private static int dataDim = 2;
 	private static int tagDim = 1;
-	private static int interation = 5000;
+	private static int interation = 500;
 	private static double learningRateAtt = 0.01;
 	private static double learningRateRep = 0.1;
 	
@@ -31,8 +31,12 @@ public class DemoSOM {
 		/* start training */
 		System.out.println("Trainning ...");
 		som.training(pattenSet);
-		
 		System.out.println("Done traning");
+		
+		/* test */
+		som.printWeight();
+		som.test(new double[]{+1, -1});
+		som.test(new double[]{-1, +1});
 	}
 	
 	
