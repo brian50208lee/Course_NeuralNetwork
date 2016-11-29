@@ -32,8 +32,8 @@ public class BPNSubject implements Subject{
 		}
 	}
 	
-	public void setPrecisionPoint(ArrayList<double[]> newPrecisionPoint){
-		this.precisionPoint = newPrecisionPoint;
+	public void setNeuralWeightList(ArrayList<double[]> precisionPoint){
+		this.precisionPoint = precisionPoint;
 		notifyObserver();
 	}
 

@@ -11,9 +11,9 @@ public class DemoSOM {
 	private static int[] networkDeclare = new int[]{2,1};
 	private static int dataDim = 2;
 	private static int tagDim = 1;
-	private static int interation = 500;
-	private static double learningRateAtt = 0.01;
-	private static double learningRateRep = 0.1;
+	private static int interation = 5000;
+	private static double learningRateAtt = 0.00;
+	private static double learningRateRep = 10000;
 	
 	public static void main(String args[]) throws InterruptedException, NumberFormatException, IOException  {
 		/* read training data */

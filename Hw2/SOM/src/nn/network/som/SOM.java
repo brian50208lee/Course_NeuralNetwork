@@ -1,5 +1,6 @@
 package nn.network.som;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 import nn.dataset.Patten;
@@ -100,21 +101,18 @@ public class SOM {
 				/* finding p,q,r,s */
 				for (Patten pattern1 : pattenSet.getPattenList()) {
 					for (Patten pattern2 : pattenSet.getPattenList()) {// for all pair
-						/* forwarding and deep clone */
-						double actP1[][] = forwarding(pattern1.getData()).clone();
-						for (int i = 0; i < actP1.length; i++)actP1[i] = actP1[i].clone();
-						double actP2[][] = forwarding(pattern2.getData()).clone();
-						for (int i = 0; i < actP2.length; i++)actP2[i] = actP2[i].clone();
 						
 						/* check max and min distance */
-						double dist = distance(actP1[m], actP2[m]);
+						double dist = actDistance(m, pattern1, pattern2);
 						if (pattern1.getTarget()[0] == pattern2.getTarget()[0]) {//same class
+							//System.out.printf("same: %.25f\n", dist);
 							if (dist > maxDist) {
 								p = pattern1;
 								q = pattern2;
 								maxDist = dist;
 							}
 						} else {//diff class
+							//System.out.printf("diff: %.25f\n", dist);
 							if (dist < minDist) {
 								r = pattern1;
 								s = pattern2;
@@ -124,14 +122,19 @@ public class SOM {
 						
 					}
 				}
-				if (epoch%10==0) {
-					System.out.printf("%d-%d\tmaxDist:%.25f\tminDist:%.25f\n",m, epoch, maxDist, minDist);	
-				} 
+				notifyObserver();
+				//if (epoch%10==0) {
+				System.out.printf("%d-%d\tmaxDist:%.25f\tminDist:%.25f\n",m, epoch, maxDist, minDist);	
+				//} 
 
 				
+				//System.out.printf("b : maxDist:%.25f\tminDist:%.25f\n", actDistance(m, p, q), actDistance(m, r, s));	
 				
 				/* reweight */
 				reweight(m, p, q, r, s);
+				//System.out.printf("b : maxDist:%.25f\tminDist:%.25f\n", actDistance(m, p, q), actDistance(m, r, s));	
+				
+				
 			}
 		}
 	}
@@ -145,13 +148,13 @@ public class SOM {
 		/* calculate activate value of hidden layer and output layer */
 		for (int layer = 1; layer < layerNum; layer++) {
 			for (int neural = 0; neural < networkInfo[layer]; neural++) {
-				int baseIndex = weight[layer][neural].length-1;
+				int baseIndex = networkInfo[layer-1];
 				double baseWeight = weight[layer][neural][baseIndex];
 				double value = baseWeight * 1;
 				for (int link = 0; link < baseIndex; link++) {
 					value += weight[layer][neural][link] * activate[layer-1][link];
 				}
-				activate[layer][neural] = sigmoid(value);
+				activate[layer][neural] = activateFunc(value);
 			}
 		}
 		
@@ -171,18 +174,18 @@ public class SOM {
 		for (int i = 0; i < actS.length; i++)actS[i] = actS[i].clone();
 		
 		/* reweight */
-		for (int n = 0; n < weight[m].length; n++) {
-			int baseIndex = weight[m][n].length-1;
-			for (int k = 0; k < baseIndex; k++) {
+		for (int n = 0; n < networkInfo[m]; n++) {
+			int baseWIdx = networkInfo[m-1];
+			for (int k = 0; k < baseWIdx; k++) {
 				weight[m][n][k] -= learningRateAtt*((actP[m][n]-actQ[m][n])*(actP[m][n]-actP[m][n]*actP[m][n])*actP[m-1][k]);
 				weight[m][n][k] += learningRateAtt*((actP[m][n]-actQ[m][n])*(actQ[m][n]-actQ[m][n]*actQ[m][n])*actQ[m-1][k]);
 				weight[m][n][k] += learningRateRep*((actR[m][n]-actS[m][n])*(actR[m][n]-actR[m][n]*actR[m][n])*actR[m-1][k]);
 				weight[m][n][k] -= learningRateRep*((actR[m][n]-actS[m][n])*(actS[m][n]-actS[m][n]*actS[m][n])*actS[m-1][k]);
 			}
-			weight[m][n][baseIndex] -= learningRateAtt*((actP[m][n]-actQ[m][n])*(actP[m][n]-actP[m][n]*actP[m][n])*(-1));
-			weight[m][n][baseIndex] += learningRateAtt*((actP[m][n]-actQ[m][n])*(actQ[m][n]-actQ[m][n]*actQ[m][n])*(-1));
-			weight[m][n][baseIndex] += learningRateRep*((actR[m][n]-actS[m][n])*(actR[m][n]-actR[m][n]*actR[m][n])*(-1));
-			weight[m][n][baseIndex] -= learningRateRep*((actR[m][n]-actS[m][n])*(actS[m][n]-actS[m][n]*actS[m][n])*(-1));
+			weight[m][n][baseWIdx] -= learningRateAtt*((actP[m][n]-actQ[m][n])*(actP[m][n]-actP[m][n]*actP[m][n])*(-1));
+			weight[m][n][baseWIdx] += learningRateAtt*((actP[m][n]-actQ[m][n])*(actQ[m][n]-actQ[m][n]*actQ[m][n])*(-1));
+			weight[m][n][baseWIdx] += learningRateRep*((actR[m][n]-actS[m][n])*(actR[m][n]-actR[m][n]*actR[m][n])*(-1));
+			weight[m][n][baseWIdx] -= learningRateRep*((actR[m][n]-actS[m][n])*(actS[m][n]-actS[m][n]*actS[m][n])*(-1));
 
 		}
 	}
@@ -212,18 +215,26 @@ public class SOM {
 		return activate;
 	}
 	
+	private double activateFunc(double x){
+		//return Math.tanh(x);
+		return sigmoid(x);
+	}
 	private double sigmoid(double x){
-		return 1 / (1+Math.exp(-x));
+		double value = 1 / (1+Math.exp(-x));
+		return value;
 	}	
 	
-	private double distance(double yp[], double yq[]){
-		if (yp.length != yq.length) {
-			throw new IllegalArgumentException("array length not equal.");
-		} 
+	private double actDistance(int layer, Patten pattern1, Patten pattern2){
+		/* forwarding and deep clone */
+		double actP1[][] = forwarding(pattern1.getData()).clone();
+		for (int i = 0; i < actP1.length; i++)actP1[i] = actP1[i].clone();
+		double actP2[][] = forwarding(pattern2.getData()).clone();
+		for (int i = 0; i < actP2.length; i++)actP2[i] = actP2[i].clone();
 		
+		/* compute distance */
 		double dist = 0.0;
-		for (int i = 0; i < yq.length; i++) {
-			dist += (yp[i] - yq[i]) * (yp[i] - yq[i]);
+		for (int i = 0; i < actP1[layer].length; i++) {
+			dist += (actP1[layer][i] - actP2[layer][i]) * (actP1[layer][i] - actP2[layer][i]);
 		}
 		return dist;
 	}
@@ -250,8 +261,28 @@ public class SOM {
 	
 	
 	private void notifyObserver(){
-		
-		//bpnSubject.setPrecisionPoint(pointList);
+		ArrayList<double[]> precisionPoint = new ArrayList<double[]>();
+		int layer = 1;
+		for (int neural = 0; neural < weight[layer].length; neural++) {
+			
+			double point[] = new double[weight[layer][neural].length-1];
+			double denominator = 0;
+			
+			double wn = weight[layer][neural][weight[layer][neural].length-1] ;
+			if (wn == 0.0)wn = Double.MIN_NORMAL*10000;
+			
+			for (int k = 0; k < weight[layer][neural].length-1; k++) {
+				point[k] = (-1)*weight[layer][neural][k]*wn;
+				denominator += weight[layer][neural][k] * weight[layer][neural][k];
+			}
+
+			for (int i = 0; i < point.length; i++) {
+				point[i] /= denominator;
+			}
+			
+			precisionPoint.add(point);
+		}
+		bpnSubject.setNeuralWeightList(precisionPoint);;
 	}
 	
 	
