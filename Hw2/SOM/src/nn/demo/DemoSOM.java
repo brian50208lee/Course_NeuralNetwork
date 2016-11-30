@@ -12,8 +12,8 @@ public class DemoSOM {
 	private static int dataDim = 2;
 	private static int tagDim = 1;
 	private static int interation = 5000;
-	private static double learningRateAtt = 0.00;
-	private static double learningRateRep = 10000;
+	private static double learningRateAtt = 0.001;
+	private static double learningRateRep = 1;
 	
 	public static void main(String args[]) throws InterruptedException, NumberFormatException, IOException  {
 		/* read training data */
@@ -35,8 +35,10 @@ public class DemoSOM {
 		
 		/* test */
 		som.printWeight();
-		som.test(new double[]{+1, -1});
-		som.test(new double[]{-1, +1});
+		som.test(new double[]{+1, +0});
+		som.test(new double[]{+0, -1});
+		som.test(new double[]{-1, +0});
+		som.test(new double[]{+0, +1});
 	}
 	
 	

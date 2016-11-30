@@ -92,7 +92,7 @@ public class SOM {
 		for (int m = 1; m < layerNum; m++) {//each layer
 			for (int epoch = 0; epoch < iterations; epoch++) {//limited epochs
 				double minDist = Double.MAX_VALUE;
-				double maxDist = Double.MIN_VALUE;
+				double maxDist = (-1)*Double.MAX_VALUE;
 				Patten p = null;
 				Patten q = null;
 				Patten r = null;
@@ -101,6 +101,8 @@ public class SOM {
 				/* finding p,q,r,s */
 				for (Patten pattern1 : pattenSet.getPattenList()) {
 					for (Patten pattern2 : pattenSet.getPattenList()) {// for all pair
+						
+						if (pattern1 == pattern2)continue;
 						
 						/* check max and min distance */
 						double dist = actDistance(m, pattern1, pattern2);
@@ -132,6 +134,7 @@ public class SOM {
 				
 				/* reweight */
 				reweight(m, p, q, r, s);
+				//printWeight();
 				//System.out.printf("b : maxDist:%.25f\tminDist:%.25f\n", actDistance(m, p, q), actDistance(m, r, s));	
 				
 				
@@ -173,6 +176,18 @@ public class SOM {
 		double actS[][] = forwarding(s.getData()).clone();
 		for (int i = 0; i < actS.length; i++)actS[i] = actS[i].clone();
 		
+		/*
+		for (int i = 0; i < actP[m].length; i++)System.out.print(actP[m][i]+" ");
+		System.out.println();
+		for (int i = 0; i < actP[m].length; i++)System.out.print(actQ[m][i]+" ");
+		System.out.println();
+		for (int i = 0; i < actP[m].length; i++)System.out.print(actR[m][i]+" ");
+		System.out.println();
+		for (int i = 0; i < actP[m].length; i++)System.out.print(actS[m][i]+" ");
+		System.out.println("\n");
+		*/
+		
+		
 		/* reweight */
 		for (int n = 0; n < networkInfo[m]; n++) {
 			int baseWIdx = networkInfo[m-1];
@@ -181,6 +196,10 @@ public class SOM {
 				weight[m][n][k] += learningRateAtt*((actP[m][n]-actQ[m][n])*(actQ[m][n]-actQ[m][n]*actQ[m][n])*actQ[m-1][k]);
 				weight[m][n][k] += learningRateRep*((actR[m][n]-actS[m][n])*(actR[m][n]-actR[m][n]*actR[m][n])*actR[m-1][k]);
 				weight[m][n][k] -= learningRateRep*((actR[m][n]-actS[m][n])*(actS[m][n]-actS[m][n]*actS[m][n])*actS[m-1][k]);
+				//System.out.print(learningRateAtt*((actP[m][n]-actQ[m][n])*(actP[m][n]-actP[m][n]*actP[m][n])*actP[m-1][k])+" ");
+				//System.out.print(learningRateAtt*((actP[m][n]-actQ[m][n])*(actQ[m][n]-actQ[m][n]*actQ[m][n])*actQ[m-1][k])+" ");
+				//System.out.print(learningRateRep*((actR[m][n]-actS[m][n])*(actR[m][n]-actR[m][n]*actR[m][n])*actR[m-1][k])+" ");
+				//System.out.println(learningRateRep*((actR[m][n]-actS[m][n])*(actS[m][n]-actS[m][n]*actS[m][n])*actS[m-1][k]));
 			}
 			weight[m][n][baseWIdx] -= learningRateAtt*((actP[m][n]-actQ[m][n])*(actP[m][n]-actP[m][n]*actP[m][n])*(-1));
 			weight[m][n][baseWIdx] += learningRateAtt*((actP[m][n]-actQ[m][n])*(actQ[m][n]-actQ[m][n]*actQ[m][n])*(-1));
