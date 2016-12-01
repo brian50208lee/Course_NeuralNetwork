@@ -3,7 +3,10 @@ public class Patten {
 	private double data[];
 	private double target[];
 	private double dataTarget[];
+	private double activate[][];
 	
+	public void setActivate(double activate[][]){this.activate = activate;}
+	public double[][] getActivate(){return this.activate;}
 	public double[] getData(){return data;}
 	public double[] getTarget(){return target;}
 	public double[] getDataTarget(){return dataTarget ;}

@@ -71,9 +71,9 @@ public class PattenSet {
 				dbPT[i] = Double.parseDouble(strPT[i]);
 			}
 
-			/* normalize target value to 1 and 0 */
+			/* normalize target value to 1 and -1 */
 			for (int i = 0; i < tagDim; i++) {
-				dbPT[dbPT.length - 1 - i] = dbPT[dbPT.length - 1 - i] > 0 ? 1 : 0;
+				dbPT[dbPT.length - 1 - i] = dbPT[dbPT.length - 1 - i] > 0.5 ? 1 : 0;
 			}
 			this.pattenList.add(new Patten(dataDim, dbPT));
 		}

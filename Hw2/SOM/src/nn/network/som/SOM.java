@@ -22,7 +22,7 @@ public class SOM {
 	private double weight[][][];
 	
 	/** activate[layer][neural] */
-	private double activate[][];
+	//private double activate[][];
 	
 	/* get/set function */
 	public BPNSubject getSubject(){return this.bpnSubject;}
@@ -69,11 +69,6 @@ public class SOM {
 			}
 		}
 		
-		/* init activate matrix */
-		activate = new double[networkInfo.length][];
-		for (int layer = 0; layer < networkInfo.length; layer++) {
-			activate[layer] = new double[networkInfo[layer]];
-		}
 		
 	}
 	
@@ -101,20 +96,17 @@ public class SOM {
 				/* finding p,q,r,s */
 				for (Patten pattern1 : pattenSet.getPattenList()) {
 					for (Patten pattern2 : pattenSet.getPattenList()) {// for all pair
-						
 						if (pattern1 == pattern2)continue;
 						
 						/* check max and min distance */
 						double dist = actDistance(m, pattern1, pattern2);
 						if (pattern1.getTarget()[0] == pattern2.getTarget()[0]) {//same class
-							//System.out.printf("same: %.25f\n", dist);
 							if (dist > maxDist) {
 								p = pattern1;
 								q = pattern2;
 								maxDist = dist;
 							}
 						} else {//diff class
-							//System.out.printf("diff: %.25f\n", dist);
 							if (dist < minDist) {
 								r = pattern1;
 								s = pattern2;
@@ -125,9 +117,9 @@ public class SOM {
 					}
 				}
 				notifyObserver();
-				//if (epoch%10==0) {
-				System.out.printf("%d-%d\tmaxDist:%.25f\tminDist:%.25f\n",m, epoch, maxDist, minDist);	
-				//} 
+				if (epoch%10==0) {
+					System.out.printf("%d-%d\tmaxDist:%.25f\tminDist:%.25f\n",m, epoch, maxDist, minDist);	
+				} 
 
 				
 				//System.out.printf("b : maxDist:%.25f\tminDist:%.25f\n", actDistance(m, p, q), actDistance(m, r, s));	
@@ -141,15 +133,24 @@ public class SOM {
 			}
 		}
 	}
-	
 	private double[][] forwarding(double data[]){
+		return forwarding(layerNum,data);
+	}
+	
+	private double[][] forwarding(int layerToForward, double data[]){
+		/* init output matrix */
+		double activate[][] = new double[layerToForward][];
+		for (int layer = 0; layer < activate.length; layer++) {
+			activate[layer] = new double[networkInfo[layer]];
+		}
+		
 		/* init input layer by data */
 		for (int neural = 0; neural < networkInfo[0]; neural++) {
 			activate[0][neural] = data[neural];
 		}
 		
 		/* calculate activate value of hidden layer and output layer */
-		for (int layer = 1; layer < layerNum; layer++) {
+		for (int layer = 1; layer < activate.length; layer++) {
 			for (int neural = 0; neural < networkInfo[layer]; neural++) {
 				int baseIndex = networkInfo[layer-1];
 				double baseWeight = weight[layer][neural][baseIndex];
@@ -161,32 +162,31 @@ public class SOM {
 			}
 		}
 		
-		return this.activate;
+		return activate;
 	}
 	
 	
 	private void reweight(int m, Patten p, Patten q, Patten r, Patten s){
 		/* get activation vector */
-		double actP[][] = forwarding(p.getData()).clone();
-		for (int i = 0; i < actP.length; i++)actP[i] = actP[i].clone();
-		double actQ[][] = forwarding(q.getData()).clone();
-		for (int i = 0; i < actQ.length; i++)actQ[i] = actQ[i].clone();
-		double actR[][] = forwarding(r.getData()).clone();
-		for (int i = 0; i < actR.length; i++)actR[i] = actR[i].clone();
-		double actS[][] = forwarding(s.getData()).clone();
-		for (int i = 0; i < actS.length; i++)actS[i] = actS[i].clone();
+		double actP[][] = forwarding(m+1, p.getData());
+		double actQ[][] = forwarding(m+1, q.getData());
+		double actR[][] = forwarding(m+1, r.getData());
+		double actS[][] = forwarding(m+1, s.getData());
+		
 		
 		/*
-		for (int i = 0; i < actP[m].length; i++)System.out.print(actP[m][i]+" ");
-		System.out.println();
-		for (int i = 0; i < actP[m].length; i++)System.out.print(actQ[m][i]+" ");
-		System.out.println();
-		for (int i = 0; i < actP[m].length; i++)System.out.print(actR[m][i]+" ");
-		System.out.println();
-		for (int i = 0; i < actP[m].length; i++)System.out.print(actS[m][i]+" ");
-		System.out.println("\n");
+		for (int i = 0; i < actP[m].length; i++)System.out.print(actP[m][i]+"  ");
+		System.out.println("p"+p.getTarget()[0]);
+		for (int i = 0; i < actP[m].length; i++)System.out.print(actQ[m][i]+"  ");
+		System.out.println("q"+q.getTarget()[0]);
+		for (int i = 0; i < actP[m].length; i++)System.out.print(actR[m][i]+"  ");
+		System.out.println("r"+r.getTarget()[0]);
+		for (int i = 0; i < actP[m].length; i++)System.out.print(actS[m][i]+"  ");
+		System.out.println("s"+s.getTarget()[0]+"\n");
 		*/
-		
+
+		//System.out.println("p,q\t"+p.getData()[0]+","+p.getData()[1]+"|"+q.getData()[0]+","+q.getData()[1]);
+		//System.out.println("r,s\t"+r.getData()[0]+","+r.getData()[1]+"|"+s.getData()[0]+","+s.getData()[1]);
 		
 		/* reweight */
 		for (int n = 0; n < networkInfo[m]; n++) {
@@ -196,15 +196,11 @@ public class SOM {
 				weight[m][n][k] += learningRateAtt*((actP[m][n]-actQ[m][n])*(actQ[m][n]-actQ[m][n]*actQ[m][n])*actQ[m-1][k]);
 				weight[m][n][k] += learningRateRep*((actR[m][n]-actS[m][n])*(actR[m][n]-actR[m][n]*actR[m][n])*actR[m-1][k]);
 				weight[m][n][k] -= learningRateRep*((actR[m][n]-actS[m][n])*(actS[m][n]-actS[m][n]*actS[m][n])*actS[m-1][k]);
-				//System.out.print(learningRateAtt*((actP[m][n]-actQ[m][n])*(actP[m][n]-actP[m][n]*actP[m][n])*actP[m-1][k])+" ");
-				//System.out.print(learningRateAtt*((actP[m][n]-actQ[m][n])*(actQ[m][n]-actQ[m][n]*actQ[m][n])*actQ[m-1][k])+" ");
-				//System.out.print(learningRateRep*((actR[m][n]-actS[m][n])*(actR[m][n]-actR[m][n]*actR[m][n])*actR[m-1][k])+" ");
-				//System.out.println(learningRateRep*((actR[m][n]-actS[m][n])*(actS[m][n]-actS[m][n]*actS[m][n])*actS[m-1][k]));
 			}
-			weight[m][n][baseWIdx] -= learningRateAtt*((actP[m][n]-actQ[m][n])*(actP[m][n]-actP[m][n]*actP[m][n])*(-1));
-			weight[m][n][baseWIdx] += learningRateAtt*((actP[m][n]-actQ[m][n])*(actQ[m][n]-actQ[m][n]*actQ[m][n])*(-1));
-			weight[m][n][baseWIdx] += learningRateRep*((actR[m][n]-actS[m][n])*(actR[m][n]-actR[m][n]*actR[m][n])*(-1));
-			weight[m][n][baseWIdx] -= learningRateRep*((actR[m][n]-actS[m][n])*(actS[m][n]-actS[m][n]*actS[m][n])*(-1));
+			weight[m][n][baseWIdx] -= learningRateAtt*((actP[m][n]-actQ[m][n])*(actP[m][n]-actP[m][n]*actP[m][n])*(1));
+			weight[m][n][baseWIdx] += learningRateAtt*((actP[m][n]-actQ[m][n])*(actQ[m][n]-actQ[m][n]*actQ[m][n])*(1));
+			weight[m][n][baseWIdx] += learningRateRep*((actR[m][n]-actS[m][n])*(actR[m][n]-actR[m][n]*actR[m][n])*(1));
+			weight[m][n][baseWIdx] -= learningRateRep*((actR[m][n]-actS[m][n])*(actS[m][n]-actS[m][n]*actS[m][n])*(1));
 
 		}
 	}
@@ -212,7 +208,7 @@ public class SOM {
 	
 	public double[][] test(double data[]){
 		/* calculate output */
-		forwarding(data);
+		double resut[][] = forwarding(data);
 		
 		/* print data */
 		StringBuilder resultString = new StringBuilder("Data [ ");
@@ -223,19 +219,20 @@ public class SOM {
 		
 		/* print result */
 		resultString.append("\t->\t");
-		for (int i = 0; i < activate[layerNum-1].length; i++) {
-			resultString.append(String.format("%.10f,", activate[layerNum-1][i]));
+		for (int i = 0; i < resut[layerNum-1].length; i++) {
+			resultString.append(String.format("%.10f,", resut[layerNum-1][i]));
 		}
 		resultString.replace(resultString.length()-1,resultString.length(), "");
 		
 		System.out.println(resultString);
 		
 
-		return activate;
+		return resut;
 	}
 	
 	private double activateFunc(double x){
 		//return Math.tanh(x);
+		//System.out.println("active:" + x +"," + (2*sigmoid(x)-1));
 		return sigmoid(x);
 	}
 	private double sigmoid(double x){
@@ -245,10 +242,8 @@ public class SOM {
 	
 	private double actDistance(int layer, Patten pattern1, Patten pattern2){
 		/* forwarding and deep clone */
-		double actP1[][] = forwarding(pattern1.getData()).clone();
-		for (int i = 0; i < actP1.length; i++)actP1[i] = actP1[i].clone();
-		double actP2[][] = forwarding(pattern2.getData()).clone();
-		for (int i = 0; i < actP2.length; i++)actP2[i] = actP2[i].clone();
+		double actP1[][] = forwarding(layer+1, pattern1.getData());
+		double actP2[][] = forwarding(layer+1, pattern2.getData());
 		
 		/* compute distance */
 		double dist = 0.0;
@@ -339,7 +334,7 @@ public class SOM {
 	
 	public void printOutputPath(double data[]){
 		/* calculate output */
-		forwarding(data);
+		double result[][] = forwarding(data);
 		
 		/* print data */
 		System.out.printf("Test Data [ %.2f",data[0]);
@@ -349,17 +344,17 @@ public class SOM {
 		System.out.print(" ]\t->\t");
 		
 		/* print output */
-		System.out.printf("%f",activate[layerNum-1][0]);
-		for (int i = 1; i < activate[layerNum-1].length; i++) {
-			System.out.printf(",%f", activate[layerNum-1][i]) ;
+		System.out.printf("%f",result[layerNum-1][0]);
+		for (int i = 1; i < result[layerNum-1].length; i++) {
+			System.out.printf(",%f", result[layerNum-1][i]) ;
 		}
 		System.out.println();
 		
 		/* print output path */
-		for (int i = 1; i < activate.length; i++) {
+		for (int i = 1; i < result.length; i++) {
 			System.out.printf("layer:%d\t->\t",i);
-			for (int j = 0; j < activate[i].length; j++) {
-				System.out.printf("%1.0f",activate[i][j]);
+			for (int j = 0; j < result[i].length; j++) {
+				System.out.printf("%1.0f",result[i][j]);
 			}
 			System.out.println();
 		}

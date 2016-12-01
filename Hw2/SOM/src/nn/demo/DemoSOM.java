@@ -8,12 +8,12 @@ import nn.view.GUI;
 public class DemoSOM {
 	
 	private static String inputFileName = "hw2.dat";
-	private static int[] networkDeclare = new int[]{2,1};
+	private static int[] networkDeclare = new int[]{2,5,5,5,5,5};
 	private static int dataDim = 2;
 	private static int tagDim = 1;
 	private static int interation = 5000;
-	private static double learningRateAtt = 0.001;
-	private static double learningRateRep = 1;
+	private static double learningRateAtt = 0.1;
+	private static double learningRateRep = 100;
 	
 	public static void main(String args[]) throws InterruptedException, NumberFormatException, IOException  {
 		/* read training data */
