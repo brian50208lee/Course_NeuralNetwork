@@ -13,8 +13,8 @@ import nn.network.som.SOM;
 import nn.view.GUI;
 public class DemoSOM {
 	
-	private static String inputFileName = "hw2.dat";
-	private static int[] networkDeclare = new int[]{2,5,5,5,5,1};
+	private static String inputFileName = "circle.dat";
+	private static int[] networkDeclare = new int[]{2,10,10,10,10,1};
 	private static int dataDim = 2;
 	private static int tagDim = 1;
 	private static int interation = 5000;
