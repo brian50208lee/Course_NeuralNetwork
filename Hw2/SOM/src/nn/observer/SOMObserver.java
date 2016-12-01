@@ -2,11 +2,11 @@ package nn.observer;
 
 import java.util.ArrayList;
 
-public class BPNObserver implements Observer{
+public class SOMObserver implements Observer{
 	protected ArrayList<double[]> precisionPoint;
 	protected Subject bpnSubject;
 	
-	public BPNObserver(BPNSubject bpnSubject) {
+	public SOMObserver(SOMSubject bpnSubject) {
 		this.precisionPoint = new ArrayList<double[]>();
 		this.bpnSubject = bpnSubject;
 		bpnSubject.register(this);
@@ -14,7 +14,7 @@ public class BPNObserver implements Observer{
 	
 	@Override
 	public void update() {
-		this.precisionPoint = ((BPNSubject)bpnSubject).getPrecisionPoint();
+		this.precisionPoint = ((SOMSubject)bpnSubject).getPrecisionPoint();
 	}
 
 }

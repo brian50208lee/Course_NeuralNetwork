@@ -6,10 +6,10 @@ import javax.swing.JFrame;
 
 import nn.dataset.Patten;
 import nn.dataset.PattenSet;
-import nn.observer.BPNObserver;
-import nn.observer.BPNSubject;
+import nn.observer.SOMObserver;
+import nn.observer.SOMSubject;
 
-public class GUI extends BPNObserver{
+public class GUI extends SOMObserver{
 	
 	private PattenSet pattenSet;
 	private JFrame frame;
@@ -17,7 +17,7 @@ public class GUI extends BPNObserver{
 	
 	
 	
-	public GUI(BPNSubject bpnSubject) {
+	public GUI(SOMSubject bpnSubject) {
 		super(bpnSubject);
 		initFrame();
 	}
@@ -33,7 +33,7 @@ public class GUI extends BPNObserver{
 
 	private void initFrame(){
 		frame = new JFrame(); 
-		frame.setTitle("Back Propogation");
+		frame.setTitle("Self-Ognization Map");
 		frame.setSize(600, 600);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setResizable(false);

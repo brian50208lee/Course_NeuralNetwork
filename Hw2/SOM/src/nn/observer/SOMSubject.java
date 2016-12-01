@@ -2,7 +2,7 @@ package nn.observer;
 
 import java.util.ArrayList;
 
-public class BPNSubject implements Subject{
+public class SOMSubject implements Subject{
 	ArrayList<Observer> observers;
 	private ArrayList<double[]> precisionPoint;
 	
@@ -10,7 +10,7 @@ public class BPNSubject implements Subject{
 		return this.precisionPoint;
 	}
 	
-	public BPNSubject() {
+	public SOMSubject() {
 		this.observers = new ArrayList<Observer>();
 		this.precisionPoint = new ArrayList<double[]>();
 	}
