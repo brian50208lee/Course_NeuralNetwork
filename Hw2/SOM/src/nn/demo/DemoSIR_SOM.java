@@ -9,12 +9,12 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 
 import nn.dataset.PattenSet;
-import nn.network.som.SOM;
+import nn.network.som.SIR_SOM;
 import nn.view.GUI;
-public class DemoSOM {
+public class DemoSIR_SOM {
 	
 	private static String inputFileName = "circle.dat";
-	private static int[] networkDeclare = new int[]{2,10,10,10,10,1};
+	private static int[] networkDeclare = new int[]{2,9,6,3,1};
 	private static int dataDim = 2;
 	private static int tagDim = 1;
 	private static int interation = 5000;
@@ -26,7 +26,7 @@ public class DemoSOM {
 		PattenSet pattenSet = new PattenSet(inputFileName, dataDim, tagDim);
 		
 		/* initial network */
-		SOM som = new SOM(networkDeclare, interation, learningRateAtt, learningRateRep);
+		SIR_SOM som = new SIR_SOM(networkDeclare, interation, learningRateAtt, learningRateRep);
 		
 		/* View for 2D data */
 		if (networkDeclare[0] == 2 ) {
@@ -37,9 +37,9 @@ public class DemoSOM {
 		/* start training */
 		System.out.println("Trainning ...");
 		som.training(pattenSet);
-		
-		/* weight */
 		System.out.println("Done Traning");
+		
+		/* print weight */
 		som.printWeight();
 		
 		/* test data */
@@ -49,7 +49,8 @@ public class DemoSOM {
 		som.test(new double[]{-1, +0});
 		som.test(new double[]{+0, +1});
 		
-		BufferedImage classImg = som.get2DClassImage(pattenSet, 500, 500, new double[]{-1,1}, new double[]{1,-1});
+		/* show class image */
+		BufferedImage classImg = som.get2DClassImage(pattenSet, 500, 500, new double[]{-1.1,1.1}, new double[]{1.1,-1.1});
 		showImg(classImg, "class image");
 	}
 	

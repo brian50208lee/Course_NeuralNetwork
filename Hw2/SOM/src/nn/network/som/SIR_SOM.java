@@ -19,9 +19,9 @@ import nn.observer.SOMSubject;
  * Neural Network Hw2 <br>
  * Supervised Self-Ognization Map <br>
  * Reference Paper "Forced Accretion andyAssimilation Based on Self-Organizing Neural Network" <br>
- * @author Owner brian lee
+ * @author Brian Lee
  */
-public class SOM {
+public class SIR_SOM {
 	/** observable */
 	private SOMSubject bpnSubject;
 	
@@ -54,10 +54,10 @@ public class SOM {
 	 * @param learningRateAtt attraction learning rate
 	 * @param learningRateRep repelling learning rate 
 	 */
-	public SOM(int networkInfo[], int iterations, double learningRateAtt, double learningRateRep){
+	public SIR_SOM(int networkInfo[], int iterations, double learningRateAtt, double learningRateRep){
 		/* check parameter */
 		if (networkInfo.length <2) {
-			throw new IllegalArgumentException("layer number must greater than 1");
+			throw new IllegalArgumentException("layer number must be greater than 1");
 		}
 		
 		/* set network information */
@@ -179,7 +179,7 @@ public class SOM {
 				
 				/* print cloest and farthest distance */
 				if (epoch % 10 == 0) {
-					System.out.printf("Layer: %d\tEpoch: %d\t",m, epoch);	
+					System.out.printf("Layer: %d\tEpoch: %d\t", m, epoch);	
 					System.out.printf("Shortest Dist:%.25f\t", farDist);
 					System.out.printf("Longest Dist:%.25f\n", clsDist);
 				}
@@ -204,7 +204,7 @@ public class SOM {
 	private void reweight(int m, Patten p, Patten q, Patten r, Patten s){
 		/* get activation matrix */
 		double clsP[][] = forwarding(p.getData());//closet 
-		double cloQ[][] = forwarding(q.getData());//closet 
+		double clsQ[][] = forwarding(q.getData());//closet 
 		double farR[][] = forwarding(r.getData());//farthest 
 		double farS[][] = forwarding(s.getData());//farthest 
 			
@@ -212,49 +212,22 @@ public class SOM {
 		for (int n = 0; n < networkInfo[m]; n++) {//eash neural
 			int baseWIdx = networkInfo[m-1];
 			for (int k = 0; k < baseWIdx; k++) {//each weight
-				weight[m][n][k] -= learningRateAtt*((clsP[m][n]-cloQ[m][n])*(clsP[m][n]-clsP[m][n]*clsP[m][n])*clsP[m-1][k]);
-				weight[m][n][k] += learningRateAtt*((clsP[m][n]-cloQ[m][n])*(cloQ[m][n]-cloQ[m][n]*cloQ[m][n])*cloQ[m-1][k]);
+				weight[m][n][k] -= learningRateAtt*((clsP[m][n]-clsQ[m][n])*(clsP[m][n]-clsP[m][n]*clsP[m][n])*clsP[m-1][k]);
+				weight[m][n][k] += learningRateAtt*((clsP[m][n]-clsQ[m][n])*(clsQ[m][n]-clsQ[m][n]*clsQ[m][n])*clsQ[m-1][k]);
 				weight[m][n][k] += learningRateRep*((farR[m][n]-farS[m][n])*(farR[m][n]-farR[m][n]*farR[m][n])*farR[m-1][k]);
 				weight[m][n][k] -= learningRateRep*((farR[m][n]-farS[m][n])*(farS[m][n]-farS[m][n]*farS[m][n])*farS[m-1][k]);
 			}
 			/* base weight */
-			weight[m][n][baseWIdx] -= learningRateAtt*((clsP[m][n]-cloQ[m][n])*(clsP[m][n]-clsP[m][n]*clsP[m][n])*(1));
-			weight[m][n][baseWIdx] += learningRateAtt*((clsP[m][n]-cloQ[m][n])*(cloQ[m][n]-cloQ[m][n]*cloQ[m][n])*(1));
+			weight[m][n][baseWIdx] -= learningRateAtt*((clsP[m][n]-clsQ[m][n])*(clsP[m][n]-clsP[m][n]*clsP[m][n])*(1));
+			weight[m][n][baseWIdx] += learningRateAtt*((clsP[m][n]-clsQ[m][n])*(clsQ[m][n]-clsQ[m][n]*clsQ[m][n])*(1));
 			weight[m][n][baseWIdx] += learningRateRep*((farR[m][n]-farS[m][n])*(farR[m][n]-farR[m][n]*farR[m][n])*(1));
 			weight[m][n][baseWIdx] -= learningRateRep*((farR[m][n]-farS[m][n])*(farS[m][n]-farS[m][n]*farS[m][n])*(1));
 
 		}
 	}
-	
-	/**
-	 * Test data by current network and return ouput value in each layers
-	 * @param data intput data array
-	 * @return matrix activat[layer][neural]
-	 */
-	public double[][] test(double data[]){
-		/* calculate output */
-		double resut[][] = forwarding(data);
-		
-		/* print data */
-		StringBuilder resultString = new StringBuilder("Data [ ");
-		for (int i = 0; i < data.length; i++) {
-			resultString.append(String.format("%.2f,", data[i])) ;
-		}
-		resultString.replace(resultString.length()-1,resultString.length(), " ]");
-		
-		/* print result */
-		resultString.append("\t->\t");
-		for (int i = 0; i < resut[layerNum-1].length; i++) {
-			resultString.append(String.format("%.10f,", resut[layerNum-1][i]));
-		}
-		resultString.replace(resultString.length()-1,resultString.length(), "");
-		System.out.println(resultString);
-		
 
-		return resut;
-	}
 	
-	/** Activation function */
+	/** Activation function with sigmoid function */
 	private double activateFunc(double x){
 		//return Math.tanh(x);
 		return sigmoid(x);
@@ -268,9 +241,9 @@ public class SOM {
 	
 	/**
 	 * Compute activate distance in euclide space with specify layer output space 
-	 * @param layer layer of output space
-	 * @param pattern1 first patten object
-	 * @param pattern2 second patten object
+	 * @param layer layer number of output space
+	 * @param pattern1 first data object
+	 * @param pattern2 second data object
 	 * @return euclide distance in ouput space
 	 */
 	private double actiDistance(int layer, Patten pattern1, Patten pattern2){
@@ -305,15 +278,43 @@ public class SOM {
 	
 	
 	
+	/**
+	 * Test data by current network and return ouput value in each layers
+	 * @param data intput data array
+	 * @return matrix activat[layer][neural]
+	 */
+	public double[][] test(double data[]){
+		/* calculate output */
+		double resut[][] = forwarding(data);
+		
+		/* print data */
+		StringBuilder resultString = new StringBuilder("Data [ ");
+		for (int i = 0; i < data.length; i++) {
+			resultString.append(String.format("%.2f,", data[i])) ;
+		}
+		resultString.replace(resultString.length()-1,resultString.length(), " ]");
+		
+		/* print result */
+		resultString.append("\t->\t");
+		for (int i = 0; i < resut[layerNum-1].length; i++) {
+			resultString.append(String.format("%.10f,", resut[layerNum-1][i]));
+		}
+		resultString.replace(resultString.length()-1,resultString.length(), "");
+		System.out.println(resultString);
+		
+
+		return resut;
+	}
 	
 	
 	
 	/** Compute precision point in first hidden layer and signal observer */ 
 	private void notifyObserver(){
 		ArrayList<double[]> precisionPoint = new ArrayList<double[]>();
+		
+		/* conmpute precision point in first hidden layer */
 		int layer = 1;
 		for (int neural = 0; neural < weight[layer].length; neural++) {
-			
 			double point[] = new double[weight[layer][neural].length-1];
 			double denominator = 0;
 			
@@ -331,6 +332,8 @@ public class SOM {
 			
 			precisionPoint.add(point);
 		}
+		
+		/* update precision point and signal all observers */
 		bpnSubject.setNeuralWeightList(precisionPoint);;
 	}
 	
