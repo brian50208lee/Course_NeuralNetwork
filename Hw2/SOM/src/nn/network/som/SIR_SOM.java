@@ -154,10 +154,11 @@ public class SIR_SOM {
 				}
 				
 				/* find closet pair (p,q), farthest pair (r,s) */
-				for (Patten pattern1 : pattenSet.getPattenList()) {// for all pair
-					for (Patten pattern2 : pattenSet.getPattenList()) {
-						/* ignore self pair */
-						if (pattern1 == pattern2)continue;
+				for (int i = 0; i < pattenSet.getPattenList().size(); i++) {// for all pair
+					for (int j = i + 1; j < pattenSet.getPattenList().size(); j++) {
+						/* get data pair */
+						Patten pattern1 = pattenSet.getPattenList().get(i);
+						Patten pattern2 = pattenSet.getPattenList().get(j);
 						
 						/* update closet and farthest by distance */
 						double dist = actiDistance(m, pattern1, pattern2);
