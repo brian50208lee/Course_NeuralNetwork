@@ -44,7 +44,7 @@ public class SIR_SOM {
 	
 	/**
 	 * Constructor of SOM
-	 * @param layerNeuralNum e.g. [2,5,5] means 2-5-5 SOM NN
+	 * @param layerNeuralNum e.g. [2,5,5] means 2-5-5 SIR_SOM NN
 	 * @param iterations number of iterations each training epoch
 	 * @param learningRateAtt attraction learning rate
 	 * @param learningRateRep repelling learning rate 
@@ -134,22 +134,25 @@ public class SIR_SOM {
 	public void twoClassAlg(PattenSet pattenSet){
 		for (int m = 1; m < layerNum; m++) {//each layer
 			for (int epoch = 1; epoch <= epochs; epoch++) {//limited epochs
+				/* test for random select */
+				if(epoch < 500){
+					randSelectPairAndReweight(m, epoch, pattenSet);
+					continue;
+				}
 				
 				/* initial distance and patten referance */
-				double clsDist = Double.MAX_VALUE;
-				double farDist = (-1)*Double.MAX_VALUE;
-				Patten p = null;//closet pair
-				Patten q = null;//closet pair
-				Patten r = null;//closet farthest
-				Patten s = null;//closet farthest
+				double lonDist = (-1) * Double.MAX_VALUE;
+				Patten p = null;//same class longest pair
+				Patten q = null;//same class longest pair
+				double shrDist = Double.MAX_VALUE;
+				Patten r = null;//diff class closet pair
+				Patten s = null;//diff class closet pair
 				
 				/* forwarding all traning data and get activation before compute */
 				for(Patten patten : pattenSet){
 					patten.setActivate(forwarding(patten.getData()));
 				}
-				
-				
-				
+
 				/* find closet pair (p,q), farthest pair (r,s) */
 				for (int i = 0; i < pattenSet.size(); i++) {// for all pair
 					for (int j = i + 1; j < pattenSet.size(); j++) {
@@ -160,16 +163,16 @@ public class SIR_SOM {
 						/* update closet and farthest by distance */
 						double dist = actiDistance(m, pattern1, pattern2);
 						if (pattern1.getTarget()[0] == pattern2.getTarget()[0]) {//same class
-							if (dist > farDist) {
+							if (dist > lonDist) {
 								p = pattern1;
 								q = pattern2;
-								farDist = dist;
+								lonDist = dist;
 							}
 						} else {//diff class
-							if (dist < clsDist) {
+							if (dist < shrDist) {
 								r = pattern1;
 								s = pattern2;
-								clsDist = dist;
+								shrDist = dist;
 							}
 						}
 					}
@@ -178,8 +181,8 @@ public class SIR_SOM {
 				/* print cloest and farthest distance */
 				if (epoch % 10 == 0) {
 					System.out.printf("Layer: %d\tEpoch: %d\t", m, epoch);	
-					System.out.printf("Shortest Dist:%.25f\t", farDist);
-					System.out.printf("Longest Dist:%.25f\n", clsDist);
+					System.out.printf("Shortest Dist:%.25f\t", lonDist);
+					System.out.printf("Longest Dist:%.25f\n", shrDist);
 				}
 	
 				/* reweight */
@@ -190,36 +193,75 @@ public class SIR_SOM {
 			}
 		}
 	}
+	
+	
+	private void randSelectPairAndReweight(int m, int epoch, PattenSet pattenSet){
+		/* initial distance and patten referance */
+		double lonDist = (-1) * Double.MAX_VALUE;
+		Patten p = null;//same class farthest pair
+		Patten q = null;//same class farthest pair
+		double shrDist = Double.MAX_VALUE;
+		Patten r = null;//diff class closet pair
+		Patten s = null;//diff class closet pair
+		
+		/* forwarding all traning data and get activation before compute */
+		for(Patten patten : pattenSet){
+			patten.setActivate(forwarding(patten.getData()));
+		}
+		
+		/* random select pair */
+		do{ p = pattenSet.get(new Random().nextInt(pattenSet.size())); }while(false);
+		do{ q = pattenSet.get(new Random().nextInt(pattenSet.size())); }while(q==p || q.getTarget()[0] != p.getTarget()[0]);
+		do{ r = pattenSet.get(new Random().nextInt(pattenSet.size())); }while(false);
+		do{ s = pattenSet.get(new Random().nextInt(pattenSet.size())); }while(s==r || s.getTarget()[0] == r.getTarget()[0]);
+		
+		/* compute distance */
+		lonDist = actiDistance(m, p, q);
+		shrDist = actiDistance(m, r, s);
+		
+		/* print distance */
+		if (epoch % 10 == 0) {
+			System.out.printf("Layer: %d\tEpoch: %d\t", m, epoch);	
+			System.out.printf("Longest Dist:%.25f\t", lonDist);
+			System.out.printf("Shortest Dist:%.25f\n", shrDist);
+		}
+		
+		/* reweight */
+		reweight(m, p, q, r, s);
+		
+		/* update GUI if any */
+		if(m == 1)notifyObserver();
+	}
 
 	
 	/**
 	 * @param m layer number
-	 * @param p closet pair
-	 * @param q closet pair
-	 * @param r farthest pair
-	 * @param s farthest pair
+	 * @param p same class, longest pair
+	 * @param q same class, longest pair
+	 * @param r diff class, closet pair
+	 * @param s diff class, closet pair
 	 */
 	private void reweight(int m, Patten p, Patten q, Patten r, Patten s){
 		/* get activation matrix */
-		double clsP[][] = forwarding(p.getData());//closet 
-		double clsQ[][] = forwarding(q.getData());//closet 
-		double farR[][] = forwarding(r.getData());//farthest 
-		double farS[][] = forwarding(s.getData());//farthest 
+		double lonP[][] = forwarding(p.getData());//same class, longest pair
+		double lonQ[][] = forwarding(q.getData());//same class, longest pair
+		double shrR[][] = forwarding(r.getData());//diff class, closet pair
+		double shrS[][] = forwarding(s.getData());//diff class, closet pair 
 			
 		/* reweight */
 		for (int n = 0; n < networkInfo[m]; n++) {//eash neural
 			int baseWIdx = networkInfo[m-1];
 			for (int k = 0; k < baseWIdx; k++) {//each weight
-				weight[m][n][k] -= learningRateAtt*((clsP[m][n]-clsQ[m][n])*(clsP[m][n]-clsP[m][n]*clsP[m][n])*clsP[m-1][k]);
-				weight[m][n][k] += learningRateAtt*((clsP[m][n]-clsQ[m][n])*(clsQ[m][n]-clsQ[m][n]*clsQ[m][n])*clsQ[m-1][k]);
-				weight[m][n][k] += learningRateRep*((farR[m][n]-farS[m][n])*(farR[m][n]-farR[m][n]*farR[m][n])*farR[m-1][k]);
-				weight[m][n][k] -= learningRateRep*((farR[m][n]-farS[m][n])*(farS[m][n]-farS[m][n]*farS[m][n])*farS[m-1][k]);
+				weight[m][n][k] -= learningRateAtt*((lonP[m][n]-lonQ[m][n])*(lonP[m][n]-lonP[m][n]*lonP[m][n])*lonP[m-1][k]);
+				weight[m][n][k] += learningRateAtt*((lonP[m][n]-lonQ[m][n])*(lonQ[m][n]-lonQ[m][n]*lonQ[m][n])*lonQ[m-1][k]);
+				weight[m][n][k] += learningRateRep*((shrR[m][n]-shrS[m][n])*(shrR[m][n]-shrR[m][n]*shrR[m][n])*shrR[m-1][k]);
+				weight[m][n][k] -= learningRateRep*((shrR[m][n]-shrS[m][n])*(shrS[m][n]-shrS[m][n]*shrS[m][n])*shrS[m-1][k]);
 			}
 			/* base weight */
-			weight[m][n][baseWIdx] -= learningRateAtt*((clsP[m][n]-clsQ[m][n])*(clsP[m][n]-clsP[m][n]*clsP[m][n])*(1));
-			weight[m][n][baseWIdx] += learningRateAtt*((clsP[m][n]-clsQ[m][n])*(clsQ[m][n]-clsQ[m][n]*clsQ[m][n])*(1));
-			weight[m][n][baseWIdx] += learningRateRep*((farR[m][n]-farS[m][n])*(farR[m][n]-farR[m][n]*farR[m][n])*(1));
-			weight[m][n][baseWIdx] -= learningRateRep*((farR[m][n]-farS[m][n])*(farS[m][n]-farS[m][n]*farS[m][n])*(1));
+			weight[m][n][baseWIdx] -= learningRateAtt*((lonP[m][n]-lonQ[m][n])*(lonP[m][n]-lonP[m][n]*lonP[m][n])*(1));
+			weight[m][n][baseWIdx] += learningRateAtt*((lonP[m][n]-lonQ[m][n])*(lonQ[m][n]-lonQ[m][n]*lonQ[m][n])*(1));
+			weight[m][n][baseWIdx] += learningRateRep*((shrR[m][n]-shrS[m][n])*(shrR[m][n]-shrR[m][n]*shrR[m][n])*(1));
+			weight[m][n][baseWIdx] -= learningRateRep*((shrR[m][n]-shrS[m][n])*(shrS[m][n]-shrS[m][n]*shrS[m][n])*(1));
 
 		}
 	}
