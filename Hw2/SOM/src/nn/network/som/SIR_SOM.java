@@ -135,7 +135,7 @@ public class SIR_SOM {
 		for (int m = 1; m < layerNum; m++) {//each layer
 			for (int epoch = 1; epoch <= epochs; epoch++) {//limited epochs
 				/* test for random select */
-				if(epoch < 500){
+				if(epoch < 0){
 					randSelectPairAndReweight(m, epoch, pattenSet);
 					continue;
 				}
@@ -181,8 +181,8 @@ public class SIR_SOM {
 				/* print cloest and farthest distance */
 				if (epoch % 10 == 0) {
 					System.out.printf("Layer: %d\tEpoch: %d\t", m, epoch);	
-					System.out.printf("Shortest Dist:%.25f\t", lonDist);
-					System.out.printf("Longest Dist:%.25f\n", shrDist);
+					System.out.printf("Longest Dist:%.25f\t", lonDist);
+					System.out.printf("Shortest Dist:%.25f\n", shrDist);
 				}
 	
 				/* reweight */
