@@ -8,13 +8,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class PattenSet {
-	/** patten in list */
-	private ArrayList<Patten> pattenList;
+public class PattenSet extends ArrayList<Patten>{
 
 	/** create a data set */
 	public PattenSet() {
-		pattenList = new ArrayList<Patten>();
+		
 	}
 	
 	/**
@@ -26,31 +24,7 @@ public class PattenSet {
 	 * @throws NumberFormatException
 	 */
 	public PattenSet(String fileName,int dataDim,int tagDim) throws NumberFormatException, IOException {
-		pattenList = new ArrayList<Patten>();
 		load(fileName, dataDim, tagDim);
-	}
-
-	/** @return ArrayList contain all patten objects */
-	public ArrayList<Patten> getPattenList() {
-		return pattenList;
-	}
-
-	/** @return number of patten in set */
-	public int size() {
-		return pattenList.size();
-	}
-
-	/**
-	 * add new patten to the set
-	 * @param new patten object
-	 */
-	public void add(Patten patten) {
-		pattenList.add(patten);
-	}
-
-	/** @return iterator of set */
-	public Iterator<Patten> getIterator() {
-		return pattenList.iterator();
 	}
 
 	/**
@@ -75,7 +49,7 @@ public class PattenSet {
 			for (int i = 0; i < tagDim; i++) {
 				dbPT[dbPT.length - 1 - i] = dbPT[dbPT.length - 1 - i] > 0.5 ? 1 : 0;
 			}
-			this.pattenList.add(new Patten(dataDim, dbPT));
+			this.add(new Patten(dataDim, dbPT));
 		}
 	}
 }

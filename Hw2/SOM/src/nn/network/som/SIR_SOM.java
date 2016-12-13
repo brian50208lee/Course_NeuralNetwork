@@ -1,16 +1,11 @@
 package nn.network.som;
 
 import java.awt.Color;
-import java.awt.Point;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
 import java.util.ArrayList;
 import java.util.Random;
 
 
-
-
-import jdk.nashorn.internal.ir.annotations.Ignore;
 import nn.dataset.Patten;
 import nn.dataset.PattenSet;
 import nn.observer.SOMSubject;
@@ -149,16 +144,18 @@ public class SIR_SOM {
 				Patten s = null;//closet farthest
 				
 				/* forwarding all traning data and get activation before compute */
-				for(Patten patten : pattenSet.getPattenList()){
+				for(Patten patten : pattenSet){
 					patten.setActivate(forwarding(patten.getData()));
 				}
 				
+				
+				
 				/* find closet pair (p,q), farthest pair (r,s) */
-				for (int i = 0; i < pattenSet.getPattenList().size(); i++) {// for all pair
-					for (int j = i + 1; j < pattenSet.getPattenList().size(); j++) {
+				for (int i = 0; i < pattenSet.size(); i++) {// for all pair
+					for (int j = i + 1; j < pattenSet.size(); j++) {
 						/* get data pair */
-						Patten pattern1 = pattenSet.getPattenList().get(i);
-						Patten pattern2 = pattenSet.getPattenList().get(j);
+						Patten pattern1 = pattenSet.get(i);
+						Patten pattern2 = pattenSet.get(j);
 						
 						/* update closet and farthest by distance */
 						double dist = actiDistance(m, pattern1, pattern2);
@@ -435,7 +432,7 @@ public class SIR_SOM {
 		
 		/* graw patten set */
 		if (pattenSet != null) {
-			for (Patten patten : pattenSet.getPattenList()) {
+			for (Patten patten : pattenSet) {
 				int pixelX = (int)((patten.getData()[0] - sPoint[0]) / deltX);
 				int pixelY = (int)((patten.getData()[1] - sPoint[1]) / deltY)*(-1);
 				

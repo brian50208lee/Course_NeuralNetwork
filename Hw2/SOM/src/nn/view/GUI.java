@@ -50,7 +50,7 @@ public class GUI extends SOMObserver{
 	
 	private void drawPatten() {
 		ArrayList<double[]> point = new ArrayList<double[]>();
-		for (Patten patten : pattenSet.getPattenList()) {
+		for (Patten patten : pattenSet) {
 			point.add(patten.getDataTarget());
 		}
 		painterCoordinate.drawPoint(point);
