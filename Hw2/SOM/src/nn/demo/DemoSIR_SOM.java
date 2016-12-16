@@ -44,10 +44,6 @@ public class DemoSIR_SOM {
 		
 		/* test data */
 		System.out.println("Test Data");
-		som.test(new double[]{+1, +0});
-		som.test(new double[]{+0, -1});
-		som.test(new double[]{-1, +0});
-		som.test(new double[]{+0, +1});
 		
 		/* show class image */
 		BufferedImage classImg = som.get2DClassImage(pattenSet, 500, 500, new double[]{-1.1,1.1}, new double[]{1.1,-1.1});
@@ -64,7 +60,4 @@ public class DemoSIR_SOM {
 		frame.setTitle(frameTitle);
 		frame.setVisible(true);
 	}
-	
-	
-	
 }
