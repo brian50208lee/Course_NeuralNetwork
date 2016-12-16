@@ -135,7 +135,7 @@ public class SIR_SOM {
 		for (int m = 1; m < layerNum; m++) {//each layer
 			for (int epoch = 1; epoch <= epochs; epoch++) {//limited epochs
 				/* test for random select */
-				if(epoch < 0){
+				if(epoch < 500){
 					randSelectPairAndReweight(m, epoch, pattenSet);
 					continue;
 				}
@@ -181,8 +181,8 @@ public class SIR_SOM {
 				/* print cloest and farthest distance */
 				if (epoch % 10 == 0) {
 					System.out.printf("Layer: %d\tEpoch: %d\t", m, epoch);	
-					System.out.printf("Longest Dist:%.25f\t", lonDist);
-					System.out.printf("Shortest Dist:%.25f\n", shrDist);
+					System.out.printf("Log-LongestDist:%.25f\t", Math.log(lonDist));
+					System.out.printf("Log-ShortestDist:%.25f\n", Math.log(shrDist));
 				}
 	
 				/* reweight */
@@ -220,10 +220,10 @@ public class SIR_SOM {
 		shrDist = actiDistance(m, r, s);
 		
 		/* print distance */
-		if (epoch % 10 == 0) {
+		if (epoch % 1 == 0) {
 			System.out.printf("Layer: %d\tEpoch: %d\t", m, epoch);	
-			System.out.printf("Longest Dist:%.25f\t", lonDist);
-			System.out.printf("Shortest Dist:%.25f\n", shrDist);
+			System.out.printf("Log-LongestDist:%.25f\t", Math.log(lonDist));
+			System.out.printf("Log-ShortestDist:%.25f\n", Math.log(shrDist));
 		}
 		
 		/* reweight */
@@ -344,6 +344,30 @@ public class SIR_SOM {
 		
 
 		return resut;
+	}
+	
+	/**
+	 * Bugging ... (because of labeler unimplement)
+	 * @param pattenSet training data set 
+	 * @return percntage of correct rate
+	 */
+	public double testCorrectRate(PattenSet pattenSet){
+		System.out.println("Bugging ... (because of labeler unimplement)");
+		int numberOfCorrect = 0;
+		for(Patten patten : pattenSet){
+			double tag[] = patten.getTarget();
+			double resultTag[] = forwarding(patten.getData())[layerNum-1];
+			numberOfCorrect++;
+			for (int i = 0; i < tag.length; i++) {
+				if((int)(tag[i] + 0.5) != (int)(resultTag[i] + 0.5)){
+					numberOfCorrect--;
+					break;
+				}
+			}
+		}
+		double correctRate = 1.0 * numberOfCorrect / pattenSet.size();
+		System.out.printf("Correct Rate: %.2f%%\n", correctRate*100);
+		return correctRate;
 	}
 	
 	
