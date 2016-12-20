@@ -1,4 +1,5 @@
 package nn.dataset;
+
 public class Patten {
 	private double data[];
 	private double target[];
@@ -14,6 +15,7 @@ public class Patten {
 	public Patten(int dataDimension , double dataTarget[]){
 		double splitData[] = new double[dataDimension];
 		double splitTarget[] = new double[dataTarget.length-dataDimension];
+		
 		int i = 0 ;
 		for (;i < dataDimension ; i++)splitData[i] = dataTarget[i];
 		for (;i < dataTarget.length ;i++)splitTarget[i - dataDimension] = dataTarget[i];

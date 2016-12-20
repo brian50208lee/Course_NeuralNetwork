@@ -70,9 +70,11 @@ public class SIR_SOM {
 	}
 	
 	/** Training SOM network by patten set */
-	public void training(PattenSet pattenSet){
+	public void train(PattenSet pattenSet){
 		/* train pattenSet */
+		System.out.println("Start Trainning ...");
 		twoClassAlg(pattenSet);
+		System.out.println("Done Traning");
 	}
 	
 	/** Initial network weight by random gaussian in [0,1] */
@@ -134,19 +136,11 @@ public class SIR_SOM {
 	public void twoClassAlg(PattenSet pattenSet){
 		for (int m = 1; m < layerNum; m++) {//each layer
 			for (int epoch = 1; epoch <= epochs; epoch++) {//limited epochs
-				/* test for random select */
-				if(epoch < 500){
-					randSelectPairAndReweight(m, epoch, pattenSet);
-					continue;
-				}
-				
 				/* initial distance and patten referance */
 				double lonDist = (-1) * Double.MAX_VALUE;
-				Patten p = null;//same class longest pair
-				Patten q = null;//same class longest pair
 				double shrDist = Double.MAX_VALUE;
-				Patten r = null;//diff class closet pair
-				Patten s = null;//diff class closet pair
+				Patten p = null, q = null;//same class longest pair
+				Patten r = null, s = null;//diff class closet pair
 				
 				/* forwarding all traning data and get activation before compute */
 				for(Patten patten : pattenSet){
@@ -160,7 +154,7 @@ public class SIR_SOM {
 						Patten pattern1 = pattenSet.get(i);
 						Patten pattern2 = pattenSet.get(j);
 						
-						/* update closet and farthest by distance */
+						/* update closest and farthest by distance */
 						double dist = actiDistance(m, pattern1, pattern2);
 						if (pattern1.getTarget()[0] == pattern2.getTarget()[0]) {//same class
 							if (dist > lonDist) {
@@ -179,7 +173,7 @@ public class SIR_SOM {
 				}
 				
 				/* print cloest and farthest distance */
-				if (epoch % 10 == 0) {
+				if (epoch % 1 == 0) {
 					System.out.printf("Layer: %d\tEpoch: %d\t", m, epoch);	
 					System.out.printf("Log-LongestDist:%.25f\t", Math.log(lonDist));
 					System.out.printf("Log-ShortestDist:%.25f\n", Math.log(shrDist));
@@ -198,11 +192,9 @@ public class SIR_SOM {
 	private void randSelectPairAndReweight(int m, int epoch, PattenSet pattenSet){
 		/* initial distance and patten referance */
 		double lonDist = (-1) * Double.MAX_VALUE;
-		Patten p = null;//same class farthest pair
-		Patten q = null;//same class farthest pair
 		double shrDist = Double.MAX_VALUE;
-		Patten r = null;//diff class closet pair
-		Patten s = null;//diff class closet pair
+		Patten p = null, q = null;//same class longest pair
+		Patten r = null, s = null;//diff class closet pair
 		
 		/* forwarding all traning data and get activation before compute */
 		for(Patten patten : pattenSet){
@@ -297,7 +289,6 @@ public class SIR_SOM {
 		for (int neural = 0; neural < neuralNumber; neural++) {
 			dist += (actiP1[neural] - actiP2[neural]) * (actiP1[neural] - actiP2[neural]);
 		}
-		
 		return dist;
 	}
 	

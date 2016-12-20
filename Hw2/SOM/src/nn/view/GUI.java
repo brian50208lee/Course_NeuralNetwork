@@ -1,7 +1,6 @@
 package nn.view;
 
 import java.util.ArrayList;
-
 import javax.swing.JFrame;
 
 import nn.dataset.Patten;
