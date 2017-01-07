@@ -9,7 +9,9 @@ A=imread('rights.bmp');
 imshow(A)
 
 if nargin == 0  % LAUNCH GUI
+
 	fig = openfig(mfilename,'reuse');
+
 	% Use system color scheme for figure:
 	set(fig,'Color',get(0,'defaultUicontrolBackgroundColor'));
 
@@ -100,18 +102,17 @@ disp('figure1 ResizeFcn not implemented yet.')
 % It is the main start button for q-learning demo
 function varargout = pushbutton1_Callback(h, eventdata, handles, varargin)
     opengl autoselect;
-    global ALPHA BETA GAMMA BETAACE NUM_BOX
+    global ALPHA BETA GAMMA BETAACE
     ALPHA = get(handles.alpha_sl,'Value');    % learning rate parameter 
 	BETA = get(handles.beta_sl,'Value');      % magnitude of noise added to choice 
 	GAMMA = get(handles.alpha_sl,'Value');    % discount factor for future reinf
     BETAACE = get(handles.beta_ace, 'Value'); % learning rate for ACE
-    
     if (get(handles.radiobutton1,'Value')==0)
         BETA=0
     end  %if
 	m=1.1;  %mass of cart + pole 
 	mp=0.1; %mass of the pole
-	g=9.8;  %???O?[?t??
+	g=9.8;  %重力加速度
 	length=0.5;  %half length of pole
 	Force=10;   %force =10N
 	T=0.02;  % Update time interval
@@ -120,13 +121,7 @@ function varargout = pushbutton1_Callback(h, eventdata, handles, varargin)
    	[pre_state,cur_state,pre_action,cur_action,x,v_x,theta,v_theta] = reset_cart(BETA);  % reset the cart pole to initial state
 	q_val=zeros(162,2);
     v_val=zeros(162,2);
-    
-    global x_val e_val p_before
-    x_val=zeros(162,2); % for ace
-    e_val=zeros(162,2); % for ase
-    p_before=0
-	
-    h1=figure;    % this figure is cart-pole
+	h1=figure;    % this figure is cart-pole
 	axis([-3 3 0 1.5]);
 	set(gca, 'DataAspectRatio',[1 1 1]);
     set(h1, 'Position',[10 100 500 200]);

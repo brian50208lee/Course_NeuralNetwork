@@ -1,15 +1,16 @@
-function varargout = Q_Demo(varargin)
-
+function varargout = menu(varargin)
 % MENU Application M-file for menu.fig
 %    FIG = MENU launch menu GUI.
 %    MENU('callback_name', ...) invoke the named callback.
 
-% Last Modified by GUIDE v2.5 26-Nov-2011 21:11:46
+% Last Modified by GUIDE v2.0 21-Jan-2001 11:36:23
 A=imread('rights.bmp');
 imshow(A)
 
 if nargin == 0  % LAUNCH GUI
+
 	fig = openfig(mfilename,'reuse');
+
 	% Use system color scheme for figure:
 	set(fig,'Color',get(0,'defaultUicontrolBackgroundColor'));
 
@@ -88,7 +89,7 @@ set(handles.reinf,'String',...
 
 % --------------------------------------------------------------------
 % Quit button
-function varargout = pushbutton2_Callback(h, eventdata, handles, varargin)
+function varargout = pushbutton3_Callback(h, eventdata, handles, varargin)
 delete(handles.figure1);
 
 % --------------------------------------------------------------------
@@ -99,19 +100,16 @@ disp('figure1 ResizeFcn not implemented yet.')
 % --------------------------------------------------------------------
 % It is the main start button for q-learning demo
 function varargout = pushbutton1_Callback(h, eventdata, handles, varargin)
-    opengl autoselect;
-    global ALPHA BETA GAMMA BETAACE NUM_BOX
-    ALPHA = get(handles.alpha_sl,'Value');    % learning rate parameter 
-	BETA = get(handles.beta_sl,'Value');      % magnitude of noise added to choice 
-	GAMMA = get(handles.alpha_sl,'Value');    % discount factor for future reinf
-    BETAACE = get(handles.beta_ace, 'Value'); % learning rate for ACE
-    
+    global ALPHA BETA GAMMA
+    ALPHA = get(handles.alpha_sl,'Value')  % learning rate parameter 
+	BETA = get(handles.beta_sl,'Value')    % magnitude of noise added to choice 
+	GAMMA = get(handles.alpha_sl,'Value')  % discount factor for future reinf 
     if (get(handles.radiobutton1,'Value')==0)
         BETA=0
     end  %if
 	m=1.1;  %mass of cart + pole 
 	mp=0.1; %mass of the pole
-	g=9.8;  %???O?[?t??
+	g=9.8;  %重力加速度
 	length=0.5;  %half length of pole
 	Force=10;   %force =10N
 	T=0.02;  % Update time interval
@@ -119,23 +117,14 @@ function varargout = pushbutton1_Callback(h, eventdata, handles, varargin)
 	NUM_BOX=162;    % Number of states sets to 162
    	[pre_state,cur_state,pre_action,cur_action,x,v_x,theta,v_theta] = reset_cart(BETA);  % reset the cart pole to initial state
 	q_val=zeros(162,2);
-    v_val=zeros(162,2);
-    
-    global x_val e_val p_before
-    x_val=zeros(162,2); % for ace
-    e_val=zeros(162,2); % for ase
-    p_before=0
-	
-    h1=figure;    % this figure is cart-pole
+	h1=figure;
 	axis([-3 3 0 1.5]);
 	set(gca, 'DataAspectRatio',[1 1 1]);
     set(h1, 'Position',[10 100 500 200]);
 	set(h1,'DoubleBuffer','on')
 	set(gca, 'PlotBoxAspectRatio',[1 1 1]);
-    h2 = figure;   % this figure is Q-value
-    set(h2,'Position',[510 50 400 400]);
-    set(h2,'Renderer','OpenGL')
-    view(40,-30);
+    h2 = figure;
+    set(h2,'Position',[550 100 300 300]);
     success=0;   % succesee 0 times
 	reinf=0;
     trial=0;
@@ -144,7 +133,7 @@ function varargout = pushbutton1_Callback(h, eventdata, handles, varargin)
     GZ=zeros(9,18);
     best=0;
 	while success<100000
-        [q_val,v_val,pre_state,pre_action,cur_state,cur_action] = get_action(x,v_x,theta,v_theta,reinf,q_val,v_val,pre_state,cur_state,pre_action,cur_action,ALPHA,BETA,GAMMA);
+        [q_val,pre_state,pre_action,cur_state,cur_action] = get_action(x,v_x,theta,v_theta,reinf,q_val,pre_state,cur_state,pre_action,cur_action,ALPHA,BETA,GAMMA);
         if (cur_action==1)   % push left
             F=-1*Force;
         else  F=Force;    % push right
@@ -178,8 +167,7 @@ function varargout = pushbutton1_Callback(h, eventdata, handles, varargin)
         if (box== -1)  % if fail
             reinf=get(handles.reinf_sl,'Value');
             predicted_value=0;
-            %q_val(pre_state,pre_action)= q_val(pre_state,pre_action)+ ALPHA*(reinf+ GAMMA*predicted_value - q_val(pre_state,pre_action));
-            [q_val,v_val] = failed_update(q_val, v_val, pre_state, pre_action, reinf, predicted_value);
+            q_val(pre_state,pre_action)= q_val(pre_state,pre_action)+ ALPHA*(reinf+ GAMMA*predicted_value - q_val(pre_state,pre_action));
         	[pre_state,cur_state,pre_action,cur_action,x,v_x,theta,v_theta] = reset_cart(BETA);  % reset the cart pole to initial state
             trial=trial+1;
             if (success>best)
@@ -200,7 +188,6 @@ function varargout = pushbutton1_Callback(h, eventdata, handles, varargin)
                     end % k
                 end  % j
                 surf(GX,GY,GZ);
-                view(30,-15);
                 hold on;
             end  %for i
         else
@@ -211,17 +198,3 @@ function varargout = pushbutton1_Callback(h, eventdata, handles, varargin)
 	end %while
     figure(h1);
     title(strcat('Success at ',num2str(trial)),' trials');
-
-    
-
-
-% --- Executes on slider movement.
-function varargout = beta_ace_Callback(hObject, eventdata, handles, varargin)
-% hObject    handle to beta_ace (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'Value') returns position of slider
-%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
-set(handles.betaACE,'String',...
-    num2str(get(handles.beta_ace,'Value')));
