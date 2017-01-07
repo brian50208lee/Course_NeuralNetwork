@@ -4,6 +4,19 @@ pre_state=cur_state;
 pre_action=cur_action;    % Action: 1 is push left.  2 is push right
 cur_state=get_box(x,v_x,theta,v_theta);
 
+% Determine best action
+global p_before BETAACE 
+[reward_hat, p_before, v_val] = ACE(BETAACE, 0.8, 0, GAMMA, p_before, v_val, cur_state);
+[cur_action, q_val] = ASE(1000, 0.9, reward_hat, q_val, cur_state);
+
+
+end
+
+
+
+
+%{
+
 if (pre_action ~= -1)   % Update Q value. If previous action been taken
     if (cur_state == -1)  % Current state is failed
         predicted_value=0;  % fail state's value is zero
@@ -13,10 +26,11 @@ if (pre_action ~= -1)   % Update Q value. If previous action been taken
         predicted_value=q_val(cur_state,1);
     end %if
     q_val(pre_state,pre_action)= q_val(pre_state,pre_action)+ ALPHA*(reinf+ GAMMA*predicted_value - q_val(pre_state,pre_action));
-
 end %if
 % Determine best action
 if ( q_val(cur_state,1) + (rand*BETA) <= q_val(cur_state,2) )
      cur_action=2;  % push right
 else cur_action=1;  % push left
 end  %if
+
+%}

@@ -5,8 +5,8 @@ function varargout = Q_Demo(varargin)
 %    MENU('callback_name', ...) invoke the named callback.
 
 % Last Modified by GUIDE v2.5 26-Nov-2011 21:11:46
-A=imread('rights.bmp');
-imshow(A)
+%A=imread('rights.bmp');
+%imshow(A)
 
 if nargin == 0  % LAUNCH GUI
 
@@ -102,7 +102,7 @@ disp('figure1 ResizeFcn not implemented yet.')
 % It is the main start button for q-learning demo
 function varargout = pushbutton1_Callback(h, eventdata, handles, varargin)
     opengl autoselect;
-    global ALPHA BETA GAMMA BETAACE
+    global ALPHA BETA GAMMA BETAACE NUM_BOX
     ALPHA = get(handles.alpha_sl,'Value');    % learning rate parameter 
 	BETA = get(handles.beta_sl,'Value');      % magnitude of noise added to choice 
 	GAMMA = get(handles.alpha_sl,'Value');    % discount factor for future reinf
@@ -118,8 +118,10 @@ function varargout = pushbutton1_Callback(h, eventdata, handles, varargin)
 	T=0.02;  % Update time interval
 	% Define global variable
 	NUM_BOX=162;    % Number of states sets to 162
+    global  p_before
    	[pre_state,cur_state,pre_action,cur_action,x,v_x,theta,v_theta] = reset_cart(BETA);  % reset the cart pole to initial state
-	q_val=zeros(162,2);
+	p_before = 0;
+    q_val=zeros(162,2); 
     v_val=zeros(162,2);
 	h1=figure;    % this figure is cart-pole
 	axis([-3 3 0 1.5]);
@@ -140,6 +142,7 @@ function varargout = pushbutton1_Callback(h, eventdata, handles, varargin)
     best=0;
 	while success<100000
         [q_val,v_val,pre_state,pre_action,cur_state,cur_action] = get_action(x,v_x,theta,v_theta,reinf,q_val,v_val,pre_state,cur_state,pre_action,cur_action,ALPHA,BETA,GAMMA);
+        
         if (cur_action==1)   % push left
             F=-1*Force;
         else  F=Force;    % push right
@@ -176,6 +179,7 @@ function varargout = pushbutton1_Callback(h, eventdata, handles, varargin)
             %q_val(pre_state,pre_action)= q_val(pre_state,pre_action)+ ALPHA*(reinf+ GAMMA*predicted_value - q_val(pre_state,pre_action));
             [q_val,v_val] = failed_update(q_val, v_val, pre_state, pre_action, reinf, predicted_value);
         	[pre_state,cur_state,pre_action,cur_action,x,v_x,theta,v_theta] = reset_cart(BETA);  % reset the cart pole to initial state
+            p_before = 0;
             trial=trial+1;
             if (success>best)
                 best=success;
